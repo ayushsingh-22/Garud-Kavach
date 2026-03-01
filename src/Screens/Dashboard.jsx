@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Analytics from "./Analytics";
 import "./Styles/Dashboard.css";
 import baseURL from "../Constants/BaseURL"; 
@@ -66,7 +65,6 @@ const Dashboard = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [notification, setNotification] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Assuming user is logged in initially
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -144,7 +142,7 @@ const Dashboard = () => {
     const selectedIds = Array.from(selectedQueries);
     Promise.all(
       selectedIds.map(id =>
-        fetch("${baseURL2}/api/updateStatus", {
+        fetch(`${baseURL}/api/updateStatus`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -249,13 +247,7 @@ const Dashboard = () => {
   // Reset to page 1 if filters/search change and currentPage is out of range
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
-  }, [filteredQueries, totalPages]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    window.location.href = "/";
-  };
+  }, [filteredQueries, totalPages, currentPage]);
 
   return (
     <div className="dashboard-container dark-mode">

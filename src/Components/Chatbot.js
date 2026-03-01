@@ -134,9 +134,6 @@ const ChatBot = () => {
         setIsTyping(true);
 
         try {
-          // Create context information
-          const contextInfo = `The user is inquiring about Rakshak Service services. Rakshak Service has been providing reliable security services in Delhi, Noida, Gurgaon, Faridabad, Ghaziabad, Patna, and Muzaffarpur for over 10 years. Services include: Club Guards, Event Security, Personal Security, Property Guards, Corporate Security, Gunmen & Guard Dogs. Rakshak Service is available 24/7 to offer security services at competitive prices.`;
-
           // In a real environment, this would call your API. For now, we'll simulate a response
           setTimeout(() => {
             // Check if the message has booking intent
