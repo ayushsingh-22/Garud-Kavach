@@ -11,6 +11,8 @@ function ContactUs() {
     });
 
     const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,6 +20,11 @@ function ContactUs() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        
+        // Clear previous messages
+        setSuccessMessage('');
+        setErrorMessage('');
+        setIsSubmitting(true);
 
         emailjs
             .send(
@@ -31,9 +38,12 @@ function ContactUs() {
                     console.log('SUCCESS!', response.status, response.text);
                     setSuccessMessage('Your message has been sent successfully!');
                     setFormData({ name: '', email: '', subject: '', message: '' }); // Reset form
+                    setIsSubmitting(false);
                 },
                 (error) => {
                     console.error('FAILED...', error);
+                    setErrorMessage('Failed to send message. Please try again or contact us directly.');
+                    setIsSubmitting(false);
                 }
             );
     };
@@ -44,7 +54,7 @@ function ContactUs() {
 
             <div className="contact-details">
                 <h2>Reach Out to Us</h2>
-                <p><strong>Email:</strong> <a href="mail@rakshak@gmail.com">mail@rakshak@gmail.com</a></p>
+                <p><strong>Email:</strong> <a href="mailto:mail.rakshak@gmail.com">mail.rakshak@gmail.com</a></p>
                 <p><strong>Phone:</strong> <a href="tel:9999999999">9999999999</a></p>
                 <p><strong>Team:</strong> Rakshak Team</p>
             </div>
@@ -99,9 +109,12 @@ function ContactUs() {
                             required
                         ></textarea>
                     </label>
-                    <button type="submit">Submit</button>
+                    <button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Sending...' : 'Submit'}
+                    </button>
                 </form>
                 {successMessage && <p className="success-message">{successMessage}</p>}
+                {errorMessage && <p className="error-message">{errorMessage}</p>}
             </div>
         </div>
     );
