@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import baseURL from "../Constants/BaseURL";
+import apiFetch from "../utils/apiFetch";
 
 function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -13,11 +13,8 @@ function Navbar() {
 
     const checkLoginStatus = async () => {
         try {
-            const token = localStorage.getItem("token");
-            if (!token) { setIsLoggedIn(false); return; }
-            const response = await fetch(`${baseURL}/api/check-login`, {
+            const response = await apiFetch("/api/check-login", {
                 method: 'GET',
-                headers: { "Authorization": `Bearer ${token}` },
             });
             setIsLoggedIn(response.ok);
         } catch {
@@ -25,8 +22,12 @@ function Navbar() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
+    const handleLogout = async () => {
+        try {
+            await apiFetch("/api/logout", { method: "POST" });
+        } catch {
+            // Intentionally swallow errors to ensure the UI still transitions to logged-out state.
+        }
         setIsLoggedIn(false);
         window.location.href = '/';
     };

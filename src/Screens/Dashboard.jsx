@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Analytics from "./Analytics";
 import "./Styles/Dashboard.css";
-import baseURL from "../Constants/BaseURL"; 
+import apiFetch from "../utils/apiFetch";
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -67,9 +67,8 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch(`${baseURL}/api/getAllQueries`, {
-      headers: { "Authorization": `Bearer ${token}` },
+    apiFetch("/api/getAllQueries", {
+      method: "GET",
     })
       .then((res) => res.json())
       .then((data) => {
@@ -116,12 +115,10 @@ const Dashboard = () => {
   }, [queries, searchTerm, statusFilter, serviceFilter]);
 
   const handleStatusChange = (id, newStatus) => {
-    const token = localStorage.getItem("token");
-    fetch(`${baseURL}/api/updateStatus`, {
+    apiFetch("/api/updateStatus", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ id, status: newStatus }),
     })
@@ -142,12 +139,11 @@ const Dashboard = () => {
     const selectedIds = Array.from(selectedQueries);
     Promise.all(
       selectedIds.map(id =>
-        fetch(`${baseURL}/api/updateStatus`, {
+        apiFetch("/api/updateStatus", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
           body: JSON.stringify({ id, status: newStatus }),
         })
       )

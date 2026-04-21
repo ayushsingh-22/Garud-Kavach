@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Styles/Chatbot.css";
-import baseURL from "../Constants/BaseURL";
+import apiFetch from "../utils/apiFetch";
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -563,14 +563,10 @@ ${formData.message ? `\n📝 *Additional Message*\n"${formData.message}"` : ""}
         JSON.stringify(bookingData, null, 2)
       );
 
-      // Get JWT token from localStorage
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${baseURL}/api/add-query`, {
+      const response = await apiFetch("/api/add-query", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(bookingData),
       });

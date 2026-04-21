@@ -1,6 +1,6 @@
 // Updated BookServiceForm.js
 import React, { useState, useEffect } from "react";
-import baseURL from "../Constants/BaseURL";
+import apiFetch from "../utils/apiFetch";
 import "../Screens/Styles/BookServiceForm.css";
 
 const BookServiceForm = ({ selectedService, onClose }) => {
@@ -61,7 +61,7 @@ const BookServiceForm = ({ selectedService, onClose }) => {
         };
 
         try {
-            const response = await fetch(`${baseURL}/api/add-query`, {
+            const response = await apiFetch("/api/add-query", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

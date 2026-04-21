@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import baseURL from "../Constants/BaseURL";
+import apiFetch from "../utils/apiFetch";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -14,13 +14,11 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch(`${baseURL}/api/login`, {
+        const res = await apiFetch("/api/check-login", {
           method: "GET",
-          credentials: "include",
         });
-        const data = await res.json();
-        if (data.authenticated) {
-          navigate("/dashboard");
+        if (res.ok) {
+          navigate("/dashboard", { replace: true });
         }
       } catch (err) {
         // Not logged in or error
@@ -37,19 +35,18 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${baseURL}/api/login`, {
+      const response = await apiFetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
 
-      if (response.ok && data.token) {
-        localStorage.setItem("token", data.token);
+      if (response.ok) {
         setMsgColor("green");
         setMsg(data.message || "Login successful!");
         setTimeout(() => {
-          window.location.href = "/dashboard"; // Full reload to update Navbar
+          navigate("/dashboard", { replace: true });
         }, 1000);
       } else {
         setMsgColor("red");

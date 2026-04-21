@@ -28,10 +28,10 @@ function ContactUs() {
 
         emailjs
             .send(
-                process.env.REACT_APP_EMAILJS_SERVICE_ID, // Replace with your service ID
+                import.meta.env.VITE_EMAILJS_SERVICE_ID,
                 'template_8ynvqxx', // Replace with your EmailJS template ID
                 formData,
-                process.env.REACT_APP_EMAILJS_PUBLIC_KEY // Replace with your EmailJS public key
+                import.meta.env.VITE_EMAILJS_PUBLIC_KEY
             )
             .then(
                 (response) => {
