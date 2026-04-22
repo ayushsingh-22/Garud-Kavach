@@ -1,48 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
-import apiFetch from "../utils/apiFetch";
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const validateSession = async () => {
-      try {
-        const response = await apiFetch("/api/check-login", { method: "GET" });
-        if (mounted) {
-          setIsAuthenticated(response.ok);
-        }
-      } catch (_error) {
-        if (mounted) {
-          setIsAuthenticated(false);
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    validateSession();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
-      <div style={{ minHeight: "50vh", display: "grid", placeItems: "center" }}>
-        <div>Checking authentication...</div>
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+        <div>Loading session...</div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (!user) {
+    // Redirect them to the /login page, but save the current location they were
+    // trying to go to. This allows us to send them back after they log in.
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // Redirect to an unauthorized page if the user's role is not allowed
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;

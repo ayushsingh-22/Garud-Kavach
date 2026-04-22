@@ -1,38 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import apiFetch from "../utils/apiFetch";
+import { useAuth } from '../contexts/AuthContext';
 
 function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const { user, logout } = useAuth();
     const location = useLocation();
 
     const activeLink = location.pathname;
+    const isLoggedIn = !!user;
 
     const handleLinkClick = () => setMenuOpen(false);
 
-    const checkLoginStatus = async () => {
-        try {
-            const response = await apiFetch("/api/check-login", {
-                method: 'GET',
-            });
-            setIsLoggedIn(response.ok);
-        } catch {
-            setIsLoggedIn(false);
-        }
+    const handleLogout = () => {
+        handleLinkClick();
+        logout();
     };
-
-    const handleLogout = async () => {
-        try {
-            await apiFetch("/api/logout", { method: "POST" });
-        } catch {
-            // Intentionally swallow errors to ensure the UI still transitions to logged-out state.
-        }
-        setIsLoggedIn(false);
-        window.location.href = '/';
-    };
-
-    useEffect(() => { checkLoginStatus(); }, [location]);
 
     const navLinks = [
         { path: '/',            label: 'Home' },
