@@ -6,7 +6,7 @@ const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
-      text: "Hi there! I'm your Rakshak Service assistant. I can help you learn about our services or book security guards. How can I help you today?",
+      text: "Hi there! I'm your Garud Kavach assistant. I can help you learn about our services or book security guards. How can I help you today?",
       sender: "bot",
     },
   ]);
@@ -139,7 +139,7 @@ const ChatBot = () => {
             // Check if the message has booking intent
             if (hasBookingIntent(userInput)) {
               addMessage(
-                "I'd be happy to help you with booking our security services. Rakshak Service provides professional security solutions for various needs.",
+                "I'd be happy to help you with booking our security services. Garud Kavach provides professional security solutions for various needs.",
                 "bot"
               );
 
@@ -153,7 +153,7 @@ const ChatBot = () => {
               }, 1000);
             } else {
               addMessage(
-                "Rakshak Service offers professional security services across Delhi NCR and Bihar. Our guards are well-trained and equipped to handle various security situations. How can we assist you today?",
+                "Garud Kavach offers professional security services across Delhi NCR and Bihar. Our guards are well-trained and equipped to handle various security situations. How can we assist you today?",
                 "bot"
               );
 
@@ -179,7 +179,7 @@ const ChatBot = () => {
 
           // Fallback response
           addMessage(
-            "I'm here to help with Rakshak Service services. We offer security solutions in Delhi, Noida, Gurgaon, Faridabad, Ghaziabad, Patna, and Muzaffarpur. Would you like to book a service or learn more about what we offer?",
+            "I'm here to help with Garud Kavach services. We offer security solutions in Delhi, Noida, Gurgaon, Faridabad, Ghaziabad, Patna, and Muzaffarpur. Would you like to book a service or learn more about what we offer?",
             "bot"
           );
           addQuickReplies(["Tell me about services", "I'd like to book"]);
@@ -208,11 +208,11 @@ const ChatBot = () => {
         startBookingProcess();
       } else if (reply === "No, just inquiring") {
         addMessage(
-          "No problem! Feel free to ask any questions about our security services. Rakshak Service offers a range of services including Club Guards, Event Security, Personal Security, Property Guards, Corporate Security and more. We serve Delhi, Noida, Gurgaon, Faridabad, Ghaziabad, Patna, and Muzaffarpur.",
+          "No problem! Feel free to ask any questions about our security services. Garud Kavach offers a range of services including Club Guards, Event Security, Personal Security, Property Guards, Corporate Security and more. We serve Delhi, Noida, Gurgaon, Faridabad, Ghaziabad, Patna, and Muzaffarpur.",
           "bot"
         );
       } else if (reply === "Tell me about services") {
-        addMessage("Rakshak Service offers the following services:", "bot");
+        addMessage("Garud Kavach offers the following services:", "bot");
         setTimeout(() => {
           addMessage(
             "- Club Guards: Trained personnel for nightclubs and entertainment venues\n- Event Security: Security for concerts, conferences, and private events\n- Personal Security: Bodyguards and personal protection\n- Property Guards: Security for residential and commercial properties\n- Corporate Security: Comprehensive security solutions for businesses\n- Gunmen & Guard Dogs: Armed guards and trained K9 units for high-security needs",
@@ -275,7 +275,7 @@ const ChatBot = () => {
         cancelBooking();
       } else if (reply === "No, tell me more about other services") {
         addMessage(
-          "Here are the security services offered by Rakshak Service:",
+          "Here are the security services offered by Garud Kavach:",
           "bot"
         );
         addQuickReplies(services);
@@ -325,7 +325,7 @@ const ChatBot = () => {
       message: "",
     });
     addMessage(
-      "Booking process cancelled. How else can I help you with Rakshak Service services?",
+      "Booking process cancelled. How else can I help you with Garud Kavach services?",
       "bot"
     );
   };
@@ -573,7 +573,7 @@ ${formData.message ? `\n📝 *Additional Message*\n"${formData.message}"` : ""}
 
       if (response.ok) {
         addMessage(
-          "✅ Thank you for choosing Rakshak Service! Your booking has been submitted successfully. Our team will contact you soon to confirm the details.",
+          "✅ Thank you for choosing Garud Kavach! Your booking has been submitted successfully. Our team will contact you soon to confirm the details.",
           "bot"
         );
         // Reset state after successful submission
@@ -626,7 +626,7 @@ ${formData.message ? `\n📝 *Additional Message*\n"${formData.message}"` : ""}
       {isOpen && (
         <div className="chatbot-window">
           <div className="chatbot-header">
-            <h3>Rakshak Service Assistant</h3>
+            <h3>Garud Kavach Assistant</h3>
           </div>
 
           <div className="chatbot-messages">

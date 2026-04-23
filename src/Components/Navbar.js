@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Menu, X, Sun, Moon, LogIn, LayoutDashboard, LogOut } from 'lucide-react';
+import { useTheme } from './ThemeProvider';
 
 function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const { user, logout } = useAuth();
     const location = useLocation();
+    const { theme, setTheme } = useTheme();
 
     const activeLink = location.pathname;
     const isLoggedIn = !!user;
@@ -17,88 +20,104 @@ function Navbar() {
         logout();
     };
 
+    const toggleTheme = () => {
+        setTheme(theme === 'dark' ? 'light' : 'dark');
+    };
+
     const navLinks = [
         { path: '/',            label: 'Home' },
         { path: '/about-us',    label: 'About' },
         { path: '/our-services',label: 'Services' },
         { path: '/contact-us',  label: 'Contact' },
-        ...(isLoggedIn ? [{ path: '/dashboard', label: 'Dashboard' }] : []),
     ];
 
-    /* Desktop link style */
     const desktopLink = (path) =>
-        `text-sm font-medium pb-1 border-b-2 transition-colors duration-200 ${
+        `text-sm font-medium transition-colors duration-200 ${
             activeLink === path
-                ? 'text-blue-600 border-blue-600'
-                : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-400'
+                ? 'text-orange-600 dark:text-orange-500'
+                : 'text-slate-600 dark:text-slate-300 hover:text-orange-600 dark:hover:text-orange-400'
         }`;
 
-    /* Mobile link style */
     const mobileLink = (path) =>
-        `block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
+        `block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 ${
             activeLink === path
-                ? 'bg-blue-50 text-blue-600'
-                : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500'
+                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
         }`;
 
     return (
-        <nav className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+        <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center h-16">
-
-                    {/* Logo — anchored to the left */}
-                    <Link to="/" onClick={handleLinkClick} className="flex-shrink-0">
+                <div className="flex items-center justify-between h-20">
+                    {/* Logo */}
+                    <Link to="/" onClick={handleLinkClick} className="flex-shrink-0 flex items-center gap-2 bg-white rounded-lg p-1">
                         <img
                             src="/Logo4.png"
-                            alt="Rakshak Service Logo"
-                            className="h-12 w-auto object-contain"
+                            alt="Garud Kavach Logo"
+                            className="h-10 w-auto object-contain"
                         />
                     </Link>
 
-                    {/* Right-side group — pushed to the far right with ml-auto */}
-                    <div className="ml-auto flex items-center">
-
-                        {/* Desktop Links */}
-                        <div className="hidden md:flex items-center gap-7">
-                            {navLinks.map(({ path, label }) => (
-                                <Link key={path} to={path} className={desktopLink(path)} onClick={handleLinkClick}>
-                                    {label}
-                                </Link>
-                            ))}
+                    {/* Desktop Links */}
+                    <div className="hidden md:flex items-center gap-8">
+                        {navLinks.map(({ path, label }) => (
+                            <Link key={path} to={path} className={desktopLink(path)} onClick={handleLinkClick}>
+                                {label}
+                            </Link>
+                        ))}
+                        
+                        <div className="flex items-center gap-4 pl-4 border-l border-slate-200 dark:border-slate-700">
+                            {/* Theme Toggle */}
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 rounded-full text-slate-500 hover:text-orange-600 dark:text-slate-400 dark:hover:text-orange-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                aria-label="Toggle dark mode"
+                            >
+                                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                            </button>
 
                             {isLoggedIn ? (
-                                <button
-                                    onClick={handleLogout}
-                                    className="ml-1 px-5 py-1.5 rounded-full text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors duration-200 shadow-sm"
-                                >
-                                    Logout
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <Link
+                                        to="/dashboard"
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    >
+                                        <LayoutDashboard className="w-4 h-4" />
+                                        Dashboard
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
+                                    >
+                                        <LogOut className="w-4 h-4" />
+                                        Logout
+                                    </button>
+                                </div>
                             ) : (
                                 <Link
                                     to="/login"
-                                    onClick={handleLinkClick}
-                                    className="ml-1 px-5 py-1.5 rounded-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 shadow-sm"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-colors shadow-sm shadow-orange-600/20"
                                 >
-                                    Login
+                                    <LogIn className="w-4 h-4" />
+                                    Sign In
                                 </Link>
                             )}
                         </div>
+                    </div>
 
-                        {/* Mobile Hamburger */}
+                    {/* Mobile menu button */}
+                    <div className="flex md:hidden items-center gap-2">
                         <button
-                            className="md:hidden p-2 rounded-md text-gray-500 hover:text-blue-600 hover:bg-gray-100 transition-colors duration-200"
-                            onClick={() => setMenuOpen(!menuOpen)}
-                            aria-label="Toggle navigation menu"
+                            onClick={toggleTheme}
+                            className="p-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         >
-                            {menuOpen ? (
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            ) : (
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            )}
+                            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                        </button>
+                        <button
+                            className="p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                        >
+                            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
                     </div>
                 </div>
@@ -106,28 +125,40 @@ function Navbar() {
 
             {/* Mobile Dropdown Menu */}
             {menuOpen && (
-                <div className="md:hidden bg-white border-t border-gray-100 px-4 pt-2 pb-4 space-y-1 shadow-lg">
+                <div className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-4 py-4 space-y-2 shadow-xl absolute w-full">
                     {navLinks.map(({ path, label }) => (
                         <Link key={path} to={path} className={mobileLink(path)} onClick={handleLinkClick}>
                             {label}
                         </Link>
                     ))}
 
-                    <div className="pt-2 border-t border-gray-100">
+                    <div className="pt-4 mt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
                         {isLoggedIn ? (
-                            <button
-                                onClick={handleLogout}
-                                className="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors duration-200"
-                            >
-                                Logout
-                            </button>
+                            <>
+                                <Link
+                                    to="/dashboard"
+                                    onClick={handleLinkClick}
+                                    className="flex items-center gap-2 w-full px-4 py-3 rounded-lg text-base font-medium bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                >
+                                    <LayoutDashboard className="w-5 h-5" />
+                                    Dashboard
+                                </Link>
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-2 w-full px-4 py-3 rounded-lg text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                >
+                                    <LogOut className="w-5 h-5" />
+                                    Logout
+                                </button>
+                            </>
                         ) : (
                             <Link
                                 to="/login"
-                                className={mobileLink('/login')}
+                                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-base font-medium text-white bg-orange-600"
                                 onClick={handleLinkClick}
                             >
-                                Login
+                                <LogIn className="w-5 h-5" />
+                                Sign In
                             </Link>
                         )}
                     </div>

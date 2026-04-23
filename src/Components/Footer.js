@@ -1,59 +1,72 @@
 import React from 'react';
-import './Styles/Footer.css';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer-content">
-        {/* Google Map */}
-        <div className="footer-map">
-          
-          <iframe
-            title="Office Location"
-            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d437.7692543299151!2d77.3012211!3d28.6251452!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce4b17db37c77%3A0x889cd55ef9f1803e!2sD130%2C%20West%20Vinod%20Nagar%2C%20Block%20D%2C%20Mandawali%2C%20New%20Delhi%2C%20Delhi%2C%20110092!5e0!3m2!1sen!2sin!4v1734900358492!5m2!1sen!2sin"
-            width="300"
-            height="200"
-            style={{ border: '0' }}
-            allowFullScreen=""
-            loading="lazy"
-          ></iframe>
-        </div>
+  const currentYear = new Date().getFullYear();
 
-        {/* Social Media Links and Contact Details */}
-        <div className="footer-details">
-          <div className="footer-social">
-            <a href="https://x.com" target="_blank" rel="noopener noreferrer">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg"
-                alt="X"
-                className="social-icon"
-              />
-            </a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Facebook_icon.svg"
-                alt="Facebook"
-                className="social-icon"
-              />
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
-                alt="Instagram"
-                className="social-icon"
-              />
-            </a>
+  return (
+    <footer className="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+      <div className="container mx-auto px-6 lg:px-12 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
+          
+          {/* Brand Info */}
+          <div className="md:col-span-4 flex flex-col items-start">
+            <Link to="/" className="inline-block mb-6 bg-white rounded-lg p-2">
+                <img src="/Logo4.png" alt="Garud Kavach" className="h-12 w-auto object-contain" />
+            </Link>
+            <p className="text-sm text-slate-400 leading-relaxed mb-6">
+              Your trusted partner for professional and reliable security personnel. We provide unparalleled protection for your peace of mind.
+            </p>
           </div>
 
-          <div className="footer-contact">
-            <h4>Reach Out to Us</h4>
-            <p>Email: <a href="mailto:mail@rakshak@gmail.com">mail@rakshak@gmail.com</a></p>
-            <p>Phone: <a href="tel:9999999999">9999999999</a></p>
+          {/* Quick Links */}
+          <div className="md:col-span-4 md:col-start-6">
+            <h4 className="text-white font-semibold mb-6">Quick Links</h4>
+            <ul className="space-y-3 text-sm">
+              <li><Link to="/about-us" className="hover:text-orange-500 transition-colors">About Us</Link></li>
+              <li><Link to="/our-services" className="hover:text-orange-500 transition-colors">Our Services</Link></li>
+              <li><Link to="/contact-us" className="hover:text-orange-500 transition-colors">Contact Us</Link></li>
+              <li><Link to="/login" className="hover:text-orange-500 transition-colors">Admin Portal</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact Details */}
+          <div className="md:col-span-3">
+            <h4 className="text-white font-semibold mb-6">Reach Out to Us</h4>
+            <ul className="space-y-4 text-sm text-slate-400">
+              <li className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-orange-500 shrink-0" />
+                <a href="mailto:contact@rakshakservice.com" className="hover:text-white transition-colors">
+                  contact@rakshakservice.com
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-orange-500 shrink-0" />
+                <a href="tel:+911234567890" className="hover:text-white transition-colors">
+                  +91 123 456 7890
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-orange-500 shrink-0" />
+                <span>
+                  Block D, West Vinod Nagar,<br />
+                  Mandawali, New Delhi, 110092
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-slate-800 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
+          <p>&copy; {currentYear} Garud Kavach. All Rights Reserved.</p>
+          <div className="mt-4 md:mt-0 flex gap-4">
+             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
       </div>
-
-      <p>&copy; 2024 SecurePro. All Rights Reserved.</p>
     </footer>
   );
 }

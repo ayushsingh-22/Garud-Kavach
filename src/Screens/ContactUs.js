@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import emailjs from 'emailjs-com';
-import './Styles/ContactUs.css';
+import { Mail, Phone, MapPin, Send, MessageSquare } from 'lucide-react';
+import { Card, CardContent } from '../Components/ui/card';
+import { Button } from '../Components/ui/button';
+import { Input } from '../Components/ui/input';
+import { Label } from '../Components/ui/label';
 
 function ContactUs() {
     const [formData, setFormData] = useState({
@@ -10,8 +14,7 @@ function ContactUs() {
         message: '',
     });
 
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [status, setStatus] = useState({ type: '', msg: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
@@ -20,101 +23,143 @@ function ContactUs() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        // Clear previous messages
-        setSuccessMessage('');
-        setErrorMessage('');
+        setStatus({ type: '', msg: '' });
         setIsSubmitting(true);
 
         emailjs
             .send(
                 import.meta.env.VITE_EMAILJS_SERVICE_ID,
-                'template_8ynvqxx', // Replace with your EmailJS template ID
+                'template_8ynvqxx',
                 formData,
                 import.meta.env.VITE_EMAILJS_PUBLIC_KEY
             )
             .then(
-                (response) => {
-                    console.log('SUCCESS!', response.status, response.text);
-                    setSuccessMessage('Your message has been sent successfully!');
-                    setFormData({ name: '', email: '', subject: '', message: '' }); // Reset form
+                () => {
+                    setStatus({ type: 'success', msg: 'Your message has been sent successfully!' });
+                    setFormData({ name: '', email: '', subject: '', message: '' });
                     setIsSubmitting(false);
                 },
-                (error) => {
-                    console.error('FAILED...', error);
-                    setErrorMessage('Failed to send message. Please try again or contact us directly.');
+                () => {
+                    setStatus({ type: 'error', msg: 'Failed to send message. Please try again or contact us directly.' });
                     setIsSubmitting(false);
                 }
             );
     };
 
     return (
-        <div className="contact-us">
-            <h1 className="title">Contact Us</h1>
-
-            <div className="contact-details">
-                <h2>Reach Out to Us</h2>
-                <p><strong>Email:</strong> <a href="mailto:mail.rakshak@gmail.com">mail.rakshak@gmail.com</a></p>
-                <p><strong>Phone:</strong> <a href="tel:9999999999">9999999999</a></p>
-                <p><strong>Team:</strong> Rakshak Team</p>
-            </div>
-
-            <div className="social-media">
-                <h2>Follow Us</h2>
-                <div className="social-icons">
-                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="twitter">X.com</a>
-                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="facebook">Facebook</a>
-                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="instagram">Instagram</a>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-20 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-16">
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">Get in Touch</h1>
+                    <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                        Have questions about our security services? We're here to help. Contact us today for a free consultation.
+                    </p>
                 </div>
-            </div>
 
-            <div className="contact-form">
-                <h2>Send Us a Message</h2>
-                <form onSubmit={handleSubmit}>
-                    <label>
-                        Name:
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Email:
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Subject:
-                        <input
-                            type="text"
-                            name="subject"
-                            value={formData.subject}
-                            onChange={handleChange}
-                        />
-                    </label>
-                    <label>
-                        Message:
-                        <textarea
-                            name="message"
-                            value={formData.message}
-                            onChange={handleChange}
-                            required
-                        ></textarea>
-                    </label>
-                    <button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Sending...' : 'Submit'}
-                    </button>
-                </form>
-                {successMessage && <p className="success-message">{successMessage}</p>}
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    {/* Contact Info Sidebar */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <Card className="border-0 shadow-sm bg-white dark:bg-slate-900">
+                            <CardContent className="p-8 space-y-8">
+                                <div>
+                                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Contact Information</h3>
+                                    <div className="space-y-6">
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
+                                                <Mail className="w-6 h-6 text-orange-600 dark:text-orange-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Email Address</p>
+                                                <a href="mailto:contact@rakshakservice.com" className="text-base font-semibold text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                                                    contact@rakshakservice.com
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
+                                                <Phone className="w-6 h-6 text-orange-600 dark:text-orange-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Phone Number</p>
+                                                <a href="tel:+911234567890" className="text-base font-semibold text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                                                    +91 123 456 7890
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
+                                                <MapPin className="w-6 h-6 text-orange-600 dark:text-orange-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Office Location</p>
+                                                <p className="text-base font-semibold text-slate-900 dark:text-white">
+                                                    Block D, West Vinod Nagar<br/>Mandawali, New Delhi 110092
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Contact Form */}
+                    <div className="lg:col-span-2">
+                        <Card className="border-0 shadow-sm bg-white dark:bg-slate-900 overflow-hidden">
+                            <CardContent className="p-8 sm:p-10">
+                                <div className="flex items-center gap-3 mb-8">
+                                    <MessageSquare className="w-6 h-6 text-orange-600 dark:text-orange-500" />
+                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Send Us a Message</h2>
+                                </div>
+
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="name" className="text-slate-900 dark:text-white">Full Name</Label>
+                                            <Input id="name" name="name" value={formData.name} onChange={handleChange} required placeholder="John Doe" className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="email" className="text-slate-900 dark:text-white">Email Address</Label>
+                                            <Input id="email" type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="john@example.com" className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="subject" className="text-slate-900 dark:text-white">Subject</Label>
+                                        <Input id="subject" name="subject" value={formData.subject} onChange={handleChange} placeholder="How can we help you?" className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="message" className="text-slate-900 dark:text-white">Message</Label>
+                                        <textarea
+                                            id="message"
+                                            name="message"
+                                            value={formData.message}
+                                            onChange={handleChange}
+                                            required
+                                            rows={6}
+                                            className="flex w-full rounded-md border border-slate-200 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:ring-offset-slate-950 dark:placeholder:text-slate-500/60 dark:focus-visible:ring-slate-300 transition-colors"
+                                            placeholder="Write your message here..."
+                                        />
+                                    </div>
+
+                                    {status.msg && (
+                                        <div className={`p-4 rounded-lg text-sm font-medium ${status.type === 'success' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'}`}>
+                                            {status.msg}
+                                        </div>
+                                    )}
+
+                                    <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-8 bg-orange-600 hover:bg-orange-700 text-white">
+                                        {isSubmitting ? 'Sending...' : (
+                                            <>
+                                                Send Message
+                                                <Send className="w-4 h-4 ml-2" />
+                                            </>
+                                        )}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </div>
         </div>
     );

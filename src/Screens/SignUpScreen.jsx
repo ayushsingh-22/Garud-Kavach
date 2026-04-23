@@ -4,6 +4,11 @@ import apiFetch from "../utils/apiFetch";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { useFloating, autoUpdate, offset, flip, shift } from "@floating-ui/react";
+import { Card, CardContent } from "../Components/ui/card";
+import { Input } from "../Components/ui/input";
+import { Button } from "../Components/ui/button";
+import { Label } from "../Components/ui/label";
+import { UserPlus } from "lucide-react";
 
 const roles = [
     { name: "Customer", value: "customer" },
@@ -67,148 +72,160 @@ const SignUpScreen = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 p-10 bg-white shadow-lg rounded-xl">
-                <div className="flex flex-col items-center">
-                    <img className="h-20 w-auto" src="/Logo4.png" alt="Garud Kavach Logo" />
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-brand-dark">
-                        Create your account
-                    </h2>
-                </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
-                    <div className="space-y-4">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input
-                                id="name"
-                                name="name"
-                                type="text"
-                                required
-                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-brand-gold focus:border-brand-gold focus:z-10 sm:text-sm mt-1"
-                                placeholder="Full Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+            <Card className="max-w-md w-full space-y-8 p-8 sm:p-10 bg-white dark:bg-slate-900 border-0 shadow-xl dark:shadow-2xl">
+                <CardContent className="p-0">
+                    <div className="flex flex-col items-center">
+                        <div className="bg-white p-2 rounded-lg mb-6">
+                            <img className="h-14 w-auto object-contain" src="/Logo4.png" alt="Garud Kavach Logo" />
                         </div>
-                        <div>
-                            <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">Email address</label>
-                            <input
-                                id="email-address"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-brand-gold focus:border-brand-gold focus:z-10 sm:text-sm mt-1"
-                                placeholder="Email address"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="new-password"
-                                required
-                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-brand-gold focus:border-brand-gold focus:z-10 sm:text-sm mt-1"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="role" className="block text-sm font-medium text-gray-700">Role</label>
-                            <Listbox 
-                                value={selectedRole} 
-                                onChange={(value) => {
-                                    setSelectedRole(value);
-                                    setIsOpen(false);
-                                }}
-                            >
-                                <div className="relative mt-1">
-                                    <Listbox.Button
-                                        ref={refs.setReference}
-                                        onClick={() => setIsOpen(!isOpen)}
-                                        className="relative w-full cursor-default rounded-md bg-white py-3 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-                                    >
-                                        <span className="block truncate">{selectedRole.name}</span>
-                                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                            <ChevronUpDownIcon
-                                                className="h-5 w-5 text-gray-400"
-                                                aria-hidden="true"
-                                            />
-                                        </span>
-                                    </Listbox.Button>
-                                    <Transition
-                                        show={isOpen}
-                                        as={Fragment}
-                                        leave="transition ease-in duration-100"
-                                        leaveFrom="opacity-100"
-                                        leaveTo="opacity-0"
-                                        afterLeave={() => setIsOpen(false)}
-                                    >
-                                        <Listbox.Options
-                                            ref={refs.setFloating}
-                                            style={floatingStyles}
-                                            className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-20"
-                                        >
-                                            {roles.map((role, roleIdx) => (
-                                                <Listbox.Option
-                                                    key={roleIdx}
-                                                    className={({ active }) =>
-                                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                                            active ? "bg-amber-100 text-amber-900" : "text-gray-900"
-                                                        }`
-                                                    }
-                                                    value={role}
-                                                >
-                                                    {({ selected }) => (
-                                                        <>
-                                                            <span
-                                                                className={`block truncate ${
-                                                                    selected ? "font-medium" : "font-normal"
-                                                                }`}
-                                                            >
-                                                                {role.name}
-                                                            </span>
-                                                            {selected ? (
-                                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                                                </span>
-                                                            ) : null}
-                                                        </>
-                                                    )}
-                                                </Listbox.Option>
-                                            ))}
-                                        </Listbox.Options>
-                                    </Transition>
-                                </div>
-                            </Listbox>
-                        </div>
+                        <h2 className="text-center text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                            Create your account
+                        </h2>
+                        <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
+                            Join us to manage your security needs
+                        </p>
                     </div>
+                    <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
+                        <div className="space-y-5">
+                            <div className="space-y-2">
+                                <Label htmlFor="name" className="text-slate-900 dark:text-white">Full Name</Label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    required
+                                    className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60"
+                                    placeholder="John Doe"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email-address" className="text-slate-900 dark:text-white">Email address</Label>
+                                <Input
+                                    id="email-address"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    required
+                                    className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60"
+                                    placeholder="john@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="password" className="text-slate-900 dark:text-white">Password</Label>
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autoComplete="new-password"
+                                    required
+                                    className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="role" className="text-slate-900 dark:text-white">Role</Label>
+                                <Listbox 
+                                    value={selectedRole} 
+                                    onChange={(value) => {
+                                        setSelectedRole(value);
+                                        setIsOpen(false);
+                                    }}
+                                >
+                                    <div className="relative mt-1">
+                                        <Listbox.Button
+                                            ref={refs.setReference}
+                                            onClick={() => setIsOpen(!isOpen)}
+                                            className="relative w-full cursor-default rounded-md bg-slate-50 dark:bg-slate-950 py-3 pl-3 pr-10 text-left border border-slate-200 dark:border-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 dark:focus-visible:ring-slate-300 sm:text-sm text-slate-900 dark:text-slate-100"
+                                        >
+                                            <span className="block truncate">{selectedRole.name}</span>
+                                            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                <ChevronUpDownIcon
+                                                    className="h-5 w-5 text-slate-400"
+                                                    aria-hidden="true"
+                                                />
+                                            </span>
+                                        </Listbox.Button>
+                                        <Transition
+                                            show={isOpen}
+                                            as={Fragment}
+                                            leave="transition ease-in duration-100"
+                                            leaveFrom="opacity-100"
+                                            leaveTo="opacity-0"
+                                            afterLeave={() => setIsOpen(false)}
+                                        >
+                                            <Listbox.Options
+                                                ref={refs.setFloating}
+                                                style={floatingStyles}
+                                                className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-slate-50 dark:bg-slate-800 py-1 text-base shadow-xl ring-1 ring-black ring-opacity-5 border border-slate-200 dark:border-slate-700 focus:outline-none sm:text-sm z-50"
+                                            >
+                                                {roles.map((role, roleIdx) => (
+                                                    <Listbox.Option
+                                                        key={roleIdx}
+                                                        className={({ active }) =>
+                                                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                                                active ? "bg-slate-200 dark:bg-slate-700 text-orange-900 dark:text-orange-400" : "text-slate-900 dark:text-slate-200"
+                                                            }`
+                                                        }
+                                                        value={role}
+                                                    >
+                                                        {({ selected }) => (
+                                                            <>
+                                                                <span
+                                                                    className={`block truncate ${
+                                                                        selected ? "font-medium" : "font-normal"
+                                                                    }`}
+                                                                >
+                                                                    {role.name}
+                                                                </span>
+                                                                {selected ? (
+                                                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-600 dark:text-orange-500">
+                                                                        <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                                    </span>
+                                                                ) : null}
+                                                            </>
+                                                        )}
+                                                    </Listbox.Option>
+                                                ))}
+                                            </Listbox.Options>
+                                        </Transition>
+                                    </div>
+                                </Listbox>
+                            </div>
+                        </div>
 
-                    <div>
-                        <button
+                        <Button
                             type="submit"
                             disabled={isLoading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brand-dark hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-gold"
+                            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-6 text-base shadow-lg shadow-orange-600/20"
                         >
-                            {isLoading ? "Creating Account..." : "Sign Up"}
-                        </button>
-                    </div>
-                </form>
-                {msg && (
-                    <p className={`text-center ${msgColor === 'green' ? 'text-green-600' : 'text-red-600'}`}>{msg}</p>
-                )}
-                <p className="text-center text-sm text-gray-600">
-                    Already have an account?{' '}
-                    <Link to="/login" className="font-medium text-brand-dark hover:text-brand-gold">
-                        Log In
-                    </Link>
-                </p>
-            </div>
+                            {isLoading ? "Creating Account..." : (
+                                <>
+                                    <UserPlus className="w-5 h-5 mr-2" />
+                                    Sign Up
+                                </>
+                            )}
+                        </Button>
+                    </form>
+                    {msg && (
+                        <div className={`mt-6 p-4 rounded-lg text-sm font-medium text-center ${msgColor === 'green' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'}`}>
+                            {msg}
+                        </div>
+                    )}
+                    <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
+                        Already have an account?{' '}
+                        <Link to="/login" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400 transition-colors">
+                            Sign In
+                        </Link>
+                    </p>
+                </CardContent>
+            </Card>
         </div>
     );
 };

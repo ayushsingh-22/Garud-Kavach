@@ -2,10 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import apiFetch from "../utils/apiFetch";
 import { useAuth } from "../contexts/AuthContext";
+import { Card, CardContent } from "../Components/ui/card";
+import { Input } from "../Components/ui/input";
+import { Button } from "../Components/ui/button";
+import { Label } from "../Components/ui/label";
+import { LogIn } from "lucide-react";
 
 const roleRoutes = {
-  superadmin: "/dashboard", // or "/admin"
-  manager: "/dashboard",    // or "/manager"
+  superadmin: "/dashboard",
+  manager: "/dashboard",
   finance: "/finance",
   hr: "/hr",
   customer: "/customer",
@@ -24,7 +29,6 @@ const AdminLogin = () => {
 
   const from = location.state?.from?.pathname || "/";
 
-  // Redirect if user is already logged in
   useEffect(() => {
     if (!authLoading && user) {
       const redirectPath = roleRoutes[user.role] || '/';
@@ -32,7 +36,6 @@ const AdminLogin = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Login handler
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -48,10 +51,9 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Fetch user details to get the role
         const userResponse = await apiFetch('/api/check-login');
         const userData = await userResponse.json();
-        setUser(userData); // Update auth context
+        setUser(userData);
 
         setMsgColor("green");
         setMsg(data.message || "Login successful!");
@@ -75,73 +77,88 @@ const AdminLogin = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p>Loading session...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors">
+        <div className="animate-pulse text-slate-500 dark:text-slate-400 font-medium">Checking session...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 p-10 bg-white shadow-lg rounded-xl">
-        <div className="flex flex-col items-center">
-          <img className="h-20 w-auto" src="/Logo4.png" alt="Garud Kavach Logo" />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-brand-dark">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">Email address</label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-brand-gold focus:border-brand-gold focus:z-10 sm:text-sm mt-1"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+      <Card className="max-w-md w-full space-y-8 p-8 sm:p-10 bg-white dark:bg-slate-900 border-0 shadow-xl dark:shadow-2xl">
+        <CardContent className="p-0">
+            <div className="flex flex-col items-center">
+            <div className="bg-white p-2 rounded-lg mb-6">
+                <img className="h-14 w-auto object-contain" src="/Logo4.png" alt="Garud Kavach Logo" />
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-brand-gold focus:border-brand-gold focus:z-10 sm:text-sm mt-1"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+            <h2 className="text-center text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                Welcome Back
+            </h2>
+            <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
+                Please sign in to your account
+            </p>
             </div>
-          </div>
+            
+            <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+            <div className="space-y-5">
+                <div className="space-y-2">
+                <Label htmlFor="email-address" className="text-slate-900 dark:text-white">Email address</Label>
+                <Input
+                    id="email-address"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="password" className="text-slate-900 dark:text-white">Password</Label>
+                <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                </div>
+            </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brand-dark hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-gold"
+            <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-6 text-base shadow-lg shadow-orange-600/20"
             >
-              {isLoading ? "Signing in..." : "Sign In"}
-            </button>
-          </div>
-        </form>
-        {msg && (
-          <p className={`text-center ${msgColor === 'green' ? 'text-green-600' : 'text-red-600'}`}>{msg}</p>
-        )}
-        <p className="text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-medium text-brand-dark hover:text-brand-gold">
-            Sign Up
-          </Link>
-        </p>
-      </div>
+                {isLoading ? "Signing in..." : (
+                    <>
+                        <LogIn className="w-5 h-5 mr-2" />
+                        Sign In
+                    </>
+                )}
+            </Button>
+            </form>
+
+            {msg && (
+            <div className={`mt-6 p-4 rounded-lg text-sm font-medium text-center ${msgColor === 'green' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'}`}>
+                {msg}
+            </div>
+            )}
+            
+            <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
+            Don't have an account?{' '}
+            <Link to="/signup" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400 transition-colors">
+                Sign Up
+            </Link>
+            </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
