@@ -1,0 +1,13 @@
+
+> eye-craft-security@0.1.0 dev
+> vite --host 127.0.0.1
+
+[2m1:30:34 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because vite config has changed
+
+  [32m[1mVITE[22m v6.4.2[39m  [2mready in [0m[1m433[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m3000[22m/[39m
+[2m1:34:27 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/Screens/dashboards/SuperAdminDashboard.jsx, /src/index.css[22m
+[2m1:34:39 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/Screens/dashboards/SuperAdminDashboard.jsx[22m
+[2m1:34:42 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/Screens/dashboards/ManagerDashboard.jsx, /src/index.css[22m
+[2m1:34:54 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/Screens/dashboards/ManagerDashboard.jsx[22m

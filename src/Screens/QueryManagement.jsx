@@ -29,6 +29,8 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 
 const getStatusVariant = (status) => {
@@ -66,18 +68,25 @@ const QueryManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
-  useEffect(() => {
+  const fetchQueries = (silent = false) => {
+    if (!silent) setLoading(true);
     apiFetch("/api/getAllQueries")
       .then((res) => res.json())
       .then((data) => {
         const sorted = [...data].sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
         setQueries(sorted);
-        setLoading(false);
+        if (!silent) setLoading(false);
       })
       .catch((err) => {
         console.error("Error:", err);
-        setLoading(false);
+        if (!silent) setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchQueries();
+    const intervalId = setInterval(() => fetchQueries(true), 5000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleStatusChange = (id, newStatus) => {
@@ -212,7 +221,15 @@ const QueryManagement = () => {
         <div className="flex items-center space-x-2">
             <Button
                 variant="outline"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+            >
+                <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
             >
@@ -223,11 +240,19 @@ const QueryManagement = () => {
             </span>
             <Button
                 variant="outline"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages || totalPages === 0}
             >
                 <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage >= totalPages || totalPages === 0}
+            >
+                <ChevronsRight className="h-4 w-4" />
             </Button>
         </div>
       </CardFooter>

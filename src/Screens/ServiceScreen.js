@@ -30,7 +30,7 @@ const ServiceScreen = () => {
                             </div>
                             <CardContent className="p-6 flex flex-col flex-1">
                                 <p className="text-slate-600 dark:text-slate-400 mb-6 flex-1 line-clamp-3">
-                                    {service.description}
+                                    {service.shortDescription || service.longDescription}
                                 </p>
                                 <Button asChild className="w-full bg-slate-100 hover:bg-orange-600 text-slate-900 hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-orange-600 dark:hover:text-white transition-colors">
                                     <Link to="/contact-us">

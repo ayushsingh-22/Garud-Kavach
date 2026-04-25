@@ -16,16 +16,32 @@ import {
   TableRow,
 } from "../../Components/ui/table";
 import { Badge } from "../../Components/ui/badge";
+import { Button } from "../../Components/ui/button";
+import { Eye } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../../Components/ui/dialog";
 
 const formatDateTime = (isoString) => {
     if (!isoString) return "N/A";
     const date = new Date(isoString);
     return date.toLocaleDateString("en-US", {
+      year: "numeric",
       month: "short",
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
     });
+};
+
+const isIsoDate = (str) => {
+    if (typeof str !== 'string') return false;
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/;
+    return isoRegex.test(str);
 };
 
 const getActionVariant = (action) => {
@@ -36,21 +52,63 @@ const getActionVariant = (action) => {
     return 'default';
 };
 
+const renderDetails = (details) => {
+    if (!details) return <p className="text-sm text-slate-500 dark:text-slate-400 p-4 text-center">No details available.</p>;
+    
+    if (typeof details !== 'object') {
+        return (
+            <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-md border border-slate-200 dark:border-slate-800">
+                <p className="text-sm text-slate-700 dark:text-slate-300">{String(details)}</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="border border-slate-200 dark:border-slate-800 rounded-md overflow-hidden">
+            {Object.entries(details).map(([key, value], index) => (
+                <div key={key} className={`flex flex-col sm:flex-row sm:items-start p-3 ${index % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50 dark:bg-slate-950'} border-b border-slate-100 dark:border-slate-800 last:border-0`}>
+                    <div className="w-full sm:w-1/3 text-sm font-medium text-slate-500 dark:text-slate-400 capitalize pb-1 sm:pb-0">
+                        {key.replace(/_/g, ' ')}
+                    </div>
+                    <div className="w-full sm:w-2/3 text-sm text-slate-900 dark:text-slate-100 break-words">
+                        {value === null || value === undefined 
+                            ? <span className="text-slate-400 dark:text-slate-500 italic">None</span>
+                            : typeof value === 'object' 
+                                ? <pre className="text-xs bg-slate-100 dark:bg-slate-800 p-2 rounded overflow-x-auto">{JSON.stringify(value, null, 2)}</pre>
+                                : isIsoDate(value)
+                                    ? formatDateTime(value)
+                                    : String(value)
+                        }
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
 const AuditLog = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedLog, setSelectedLog] = useState(null);
 
-    useEffect(() => {
+    const fetchLogs = (silent = false) => {
+        if (!silent) setLoading(true);
         apiFetch("/api/admin/audit-logs")
             .then((res) => res.json())
             .then((data) => {
                 setLogs(data || []);
-                setLoading(false);
+                if (!silent) setLoading(false);
             })
             .catch((err) => {
                 console.error("Error fetching audit logs:", err);
-                setLoading(false);
+                if (!silent) setLoading(false);
             });
+    };
+
+    useEffect(() => {
+        fetchLogs();
+        const intervalId = setInterval(() => fetchLogs(true), 5000);
+        return () => clearInterval(intervalId);
     }, []);
 
     return (
@@ -94,7 +152,17 @@ const AuditLog = () => {
                                         </TableCell>
                                         <TableCell className="text-slate-700 dark:text-slate-300 font-mono text-sm">{log.target}</TableCell>
                                         <TableCell className="hidden md:table-cell text-slate-500 dark:text-slate-400">
-                                            {log.details ? JSON.stringify(log.details) : '-'}
+                                            {log.details ? (
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    onClick={() => setSelectedLog(log)} 
+                                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 h-8 px-2"
+                                                >
+                                                    <Eye className="w-4 h-4 mr-2" />
+                                                    View Details
+                                                </Button>
+                                            ) : '-'}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -109,6 +177,20 @@ const AuditLog = () => {
                     </Table>
                 </div>
             </CardContent>
+
+            <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
+                <DialogContent className="sm:max-w-[600px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                    <DialogHeader>
+                        <DialogTitle className="text-slate-900 dark:text-white">Audit Log Details</DialogTitle>
+                        <DialogDescription className="text-slate-500 dark:text-slate-400">
+                            Action: <span className="font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide text-xs">{(selectedLog?.action || '').replace('_', ' ')}</span> on Target: <span className="font-mono text-slate-700 dark:text-slate-300">{selectedLog?.target}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-2 max-h-[60vh] overflow-y-auto">
+                        {renderDetails(selectedLog?.details)}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 function Footer() {
@@ -39,12 +39,6 @@ function Footer() {
                 <Mail className="w-5 h-5 text-orange-500 shrink-0" />
                 <a href="mailto:contact@rakshakservice.com" className="hover:text-white transition-colors">
                   contact@rakshakservice.com
-                </a>
-              </li>
-              <li className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-orange-500 shrink-0" />
-                <a href="tel:+911234567890" className="hover:text-white transition-colors">
-                  +91 123 456 7890
                 </a>
               </li>
               <li className="flex items-start gap-3">

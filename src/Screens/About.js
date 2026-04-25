@@ -88,10 +88,10 @@ const About = () => {
                         <div className="flex flex-col items-center">
                             <div className="w-48 h-48 rounded-full overflow-hidden mb-6 ring-4 ring-orange-100 dark:ring-orange-900/30">
                                 <img 
-                                    src="/images/founder1.jpg" 
+                                    src="/images/founder1.png" 
                                     alt="Ayush" 
                                     className="w-full h-full object-cover"
-                                    onError={(e) => { e.target.onerror = null; e.target.src='https://ui-avatars.com/api/?name=Ayush&background=random&size=200' }}
+                                    onError={(e) => { e.target.onerror = null; e.target.src='/Logo4.png' }}
                                 />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Ayush</h3>
@@ -104,10 +104,10 @@ const About = () => {
                         <div className="flex flex-col items-center">
                             <div className="w-48 h-48 rounded-full overflow-hidden mb-6 ring-4 ring-orange-100 dark:ring-orange-900/30">
                                 <img 
-                                    src="/images/founder2.jpg" 
+                                    src="/images/founder2.png" 
                                     alt="Mayur" 
                                     className="w-full h-full object-cover"
-                                    onError={(e) => { e.target.onerror = null; e.target.src='https://ui-avatars.com/api/?name=Mayur&background=random&size=200' }}
+                                    onError={(e) => { e.target.onerror = null; e.target.src='/Logo4.png' }}
                                 />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Mayur</h3>

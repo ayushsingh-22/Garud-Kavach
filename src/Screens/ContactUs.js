@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import emailjs from 'emailjs-com';
-import { Mail, Phone, MapPin, Send, MessageSquare } from 'lucide-react';
+import { Mail, MapPin, Send, MessageSquare } from 'lucide-react';
 import { Card, CardContent } from '../Components/ui/card';
 import { Button } from '../Components/ui/button';
 import { Input } from '../Components/ui/input';
@@ -72,17 +72,6 @@ function ContactUs() {
                                                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Email Address</p>
                                                 <a href="mailto:contact@rakshakservice.com" className="text-base font-semibold text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
                                                     contact@rakshakservice.com
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-4">
-                                            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
-                                                <Phone className="w-6 h-6 text-orange-600 dark:text-orange-500" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Phone Number</p>
-                                                <a href="tel:+911234567890" className="text-base font-semibold text-slate-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-                                                    +91 123 456 7890
                                                 </a>
                                             </div>
                                         </div>

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import apiFetch from "../../utils/apiFetch";
 import QueryManagement from '../QueryManagement';
 import GuardManagement from './GuardManagement';
 import AuditLog from './AuditLog';
@@ -15,7 +16,7 @@ const OverviewCard = ({ title, value, icon: Icon, trend, colorClass }) => (
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
                 <div className="flex items-baseline gap-2 mt-1">
                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{value}</h3>
-                    <span className="text-xs font-medium text-emerald-500">{trend}</span>
+                    {trend && <span className={`text-xs font-medium ${trend.startsWith('+') ? 'text-emerald-500' : trend.startsWith('-') ? 'text-red-500' : 'text-slate-500'}`}>{trend}</span>}
                 </div>
             </div>
         </CardContent>
@@ -24,6 +25,49 @@ const OverviewCard = ({ title, value, icon: Icon, trend, colorClass }) => (
 
 const ManagerDashboard = () => {
     const [activeSection, setActiveSection] = useState('overview');
+    const [stats, setStats] = useState({
+        activeQueries: 0,
+        pendingRequests: 0,
+        guardsOnDuty: 0,
+        resolvedThisWeek: 0
+    });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const [queriesRes, guardsRes] = await Promise.all([
+                    apiFetch("/api/getAllQueries").then(res => res.json()),
+                    apiFetch("/api/guards").then(res => res.json())
+                ]);
+
+                const queries = Array.isArray(queriesRes) ? queriesRes : [];
+                const guards = Array.isArray(guardsRes) ? guardsRes : [];
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+                setStats({
+                    activeQueries: queries.filter(q => q.status === 'In Progress').length,
+                    pendingRequests: queries.filter(q => q.status === 'Pending').length,
+                    guardsOnDuty: guards.filter(g => g.status === 'active').length,
+                    resolvedThisWeek: queries.filter(q =>
+                        q.status === 'Resolved' && new Date(q.submitted_at) >= sevenDaysAgo
+                    ).length
+                });
+            } catch (error) {
+                console.error("Error fetching overview stats:", error);
+            }
+        };
+
+        let intervalId;
+        if (activeSection === 'overview') {
+            fetchStats();
+            intervalId = setInterval(fetchStats, 5000);
+        }
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [activeSection]);
 
     const navItems = [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -34,44 +78,42 @@ const ManagerDashboard = () => {
 
     const renderContent = () => {
         switch (activeSection) {
-            case 'queries': return <QueryManagement />;
-            case 'guards': return <GuardManagement />;
-            case 'audit': return <AuditLog />;
+            case 'queries':
+                return <QueryManagement />;
+            case 'guards':
+                return <GuardManagement />;
+            case 'audit':
+                return <AuditLog />;
             case 'overview':
             default:
                 return (
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <OverviewCard 
-                                title="Active Queries" 
-                                value="24" 
-                                trend="+12%" 
-                                icon={ClipboardList} 
-                                colorClass="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-500" 
+                            <OverviewCard
+                                title="Active Queries"
+                                value={stats.activeQueries}
+                                icon={ClipboardList}
+                                colorClass="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-500"
                             />
-                            <OverviewCard 
-                                title="Pending Requests" 
-                                value="8" 
-                                trend="-2%" 
-                                icon={Activity} 
-                                colorClass="bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-500" 
+                            <OverviewCard
+                                title="Pending Requests"
+                                value={stats.pendingRequests}
+                                icon={Activity}
+                                colorClass="bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-500"
                             />
-                            <OverviewCard 
-                                title="Guards on Duty" 
-                                value="156" 
-                                trend="+5%" 
-                                icon={Users} 
-                                colorClass="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-500" 
+                            <OverviewCard
+                                title="Guards on Duty"
+                                value={stats.guardsOnDuty}
+                                icon={Users}
+                                colorClass="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-500"
                             />
-                            <OverviewCard 
-                                title="Resolved This Week" 
-                                value="42" 
-                                trend="+18%" 
-                                icon={CheckCircle} 
-                                colorClass="bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-500" 
+                            <OverviewCard
+                                title="Resolved This Week"
+                                value={stats.resolvedThisWeek}
+                                icon={CheckCircle}
+                                colorClass="bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-500"
                             />
                         </div>
-                        {/* We use QueryManagement here, making sure its dropdowns are visible */}
                         <div className="relative z-10">
                             <QueryManagement />
                         </div>
@@ -82,7 +124,6 @@ const ManagerDashboard = () => {
 
     return (
         <div className="flex min-h-[calc(100vh-80px)] bg-slate-50 dark:bg-slate-950">
-            {/* Sidebar */}
             <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col flex-shrink-0">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white">Admin Panel</h2>
@@ -94,8 +135,8 @@ const ManagerDashboard = () => {
                             key={item.id}
                             onClick={() => setActiveSection(item.id)}
                             className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                                activeSection === item.id 
-                                    ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-500' 
+                                activeSection === item.id
+                                    ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-500'
                                     : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50'
                             }`}
                         >
@@ -106,9 +147,8 @@ const ManagerDashboard = () => {
                 </nav>
             </aside>
 
-            {/* Mobile Nav (Dropdown) */}
             <div className="md:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 shrink-0 absolute z-10">
-                <select 
+                <select
                     value={activeSection}
                     onChange={(e) => setActiveSection(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500"
@@ -119,7 +159,6 @@ const ManagerDashboard = () => {
                 </select>
             </div>
 
-            {/* Main Content Area */}
             <main className="flex-1 min-w-0 overflow-y-auto pt-20 md:pt-0">
                 <div className="p-4 md:p-8 max-w-7xl mx-auto">
                     <div className="mb-8 hidden md:block">
