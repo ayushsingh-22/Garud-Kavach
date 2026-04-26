@@ -19,7 +19,7 @@ import { Badge } from "../../Components/ui/badge";
 import { Input } from "../../Components/ui/input";
 import { Button } from "../../Components/ui/button";
 import { Label } from "../../Components/ui/label";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,8 @@ const StaffManagement = () => {
     const [staffMembers, setStaffMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const staffPerPage = 10;
 
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -173,6 +175,17 @@ const StaffManagement = () => {
         (staff.email && staff.email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
+    const totalPages = Math.max(1, Math.ceil(filteredStaff.length / staffPerPage));
+    const safeCurrentPage = Math.min(currentPage, totalPages);
+    const paginatedStaff = filteredStaff.slice(
+        (safeCurrentPage - 1) * staffPerPage,
+        safeCurrentPage * staffPerPage
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     return (
         <Card className="border-0 shadow-sm bg-white dark:bg-slate-900 overflow-hidden">
             <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -254,8 +267,8 @@ const StaffManagement = () => {
                                         Loading staff members...
                                     </TableCell>
                                 </TableRow>
-                            ) : filteredStaff.length > 0 ? (
-                                filteredStaff.map((staff) => (
+                            ) : paginatedStaff.length > 0 ? (
+                                paginatedStaff.map((staff) => (
                                     <TableRow key={staff.id} className="border-slate-100 dark:border-slate-800">
                                         <TableCell>
                                             <div className="font-medium text-slate-900 dark:text-slate-100">{staff.name || 'N/A'}</div>
@@ -288,6 +301,40 @@ const StaffManagement = () => {
                         </TableBody>
                     </Table>
                 </div>
+
+                {/* Pagination Controls */}
+                {!loading && filteredStaff.length > staffPerPage && (
+                    <div className="flex items-center justify-between px-4 sm:px-0 py-4 border-t border-slate-100 dark:border-slate-800">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Showing {(safeCurrentPage - 1) * staffPerPage + 1}–{Math.min(safeCurrentPage * staffPerPage, filteredStaff.length)} of {filteredStaff.length} staff
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={safeCurrentPage <= 1}
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                Prev
+                            </Button>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                Page {safeCurrentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={safeCurrentPage >= totalPages}
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                Next
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </CardContent>
 
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

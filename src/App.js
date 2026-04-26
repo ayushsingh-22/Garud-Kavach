@@ -14,6 +14,8 @@ import ProtectedRoute from './Components/ProtectedRoute';
 import './App.css';
 import SuperAdminDashboard from './Screens/dashboards/SuperAdminDashboard';
 import ManagerDashboard from './Screens/dashboards/ManagerDashboard';
+import FinanceDashboard from './Screens/dashboards/FinanceDashboard';
+import HRDashboard from './Screens/dashboards/HRDashboard';
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
@@ -42,12 +44,12 @@ function App() {
             } 
           />
           
-          {/* Add other role-based routes here as they are created */}
-          {/* 
+          {/* Explicit Role-Based Routes */}
           <Route path="/admin/*" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminDashboard /></ProtectedRoute>} />
           <Route path="/manager/*" element={<ProtectedRoute allowedRoles={['superadmin', 'manager']}><ManagerDashboard /></ProtectedRoute>} />
-          */}
-
+          <Route path="/finance/*" element={<ProtectedRoute allowedRoles={['superadmin', 'finance']}><FinanceDashboard /></ProtectedRoute>} />
+          <Route path="/hr/*" element={<ProtectedRoute allowedRoles={['superadmin', 'hr']}><HRDashboard /></ProtectedRoute>} />
+          
         </Routes>
       </main>
       <Footer />

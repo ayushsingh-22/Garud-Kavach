@@ -9,8 +9,8 @@ import { Label } from "../Components/ui/label";
 import { LogIn } from "lucide-react";
 
 const roleRoutes = {
-  superadmin: "/dashboard",
-  manager: "/dashboard",
+  superadmin: "/admin",
+  manager: "/manager",
   finance: "/finance",
   hr: "/hr",
   customer: "/customer",

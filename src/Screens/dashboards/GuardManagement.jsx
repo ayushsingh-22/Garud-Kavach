@@ -19,7 +19,7 @@ import { Badge } from "../../Components/ui/badge";
 import { Input } from "../../Components/ui/input";
 import { Button } from "../../Components/ui/button";
 import { Label } from "../../Components/ui/label";
-import { Search, Plus, UserPlus } from "lucide-react";
+import { Search, Plus, UserPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,8 @@ const GuardManagement = () => {
     const [guards, setGuards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const guardsPerPage = 10;
 
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -78,7 +80,7 @@ const GuardManagement = () => {
         apiFetch("/api/guards")
             .then((res) => res.json())
             .then((data) => {
-                setGuards(data || []);
+                setGuards(Array.isArray(data) ? data : []);
                 if (!silent) setLoading(false);
             })
             .catch((err) => {
@@ -281,6 +283,18 @@ const GuardManagement = () => {
         (guard.phone && guard.phone.includes(searchTerm))
     );
 
+    const totalPages = Math.max(1, Math.ceil(filteredGuards.length / guardsPerPage));
+    const safeCurrentPage = Math.min(currentPage, totalPages);
+    const paginatedGuards = filteredGuards.slice(
+        (safeCurrentPage - 1) * guardsPerPage,
+        safeCurrentPage * guardsPerPage
+    );
+
+    // Reset to page 1 when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     return (
         <Card className="border-0 shadow-sm bg-white dark:bg-slate-900 overflow-visible">
             <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -308,37 +322,37 @@ const GuardManagement = () => {
                         <form onSubmit={handleAddGuard} className="space-y-4 py-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name" className="text-slate-900 dark:text-white">Full Name</Label>
-                                <Input id="name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                                <Input id="name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="phone" className="text-slate-900 dark:text-white">Phone</Label>
-                                    <Input id="phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                                    <Input id="phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="hourly_rate" className="text-slate-900 dark:text-white">Hourly Rate</Label>
-                                    <Input id="hourly_rate" type="number" value={formData.hourly_rate} onChange={(e) => setFormData({...formData, hourly_rate: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                                    <Input id="hourly_rate" type="number" value={formData.hourly_rate} onChange={(e) => setFormData({...formData, hourly_rate: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="license_no" className="text-slate-900 dark:text-white">License No.</Label>
-                                    <Input id="license_no" value={formData.license_no} onChange={(e) => setFormData({...formData, license_no: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                                    <Input id="license_no" value={formData.license_no} onChange={(e) => setFormData({...formData, license_no: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="license_expiry" className="text-slate-900 dark:text-white">License Expiry</Label>
-                                    <Input id="license_expiry" type="date" value={formData.license_expiry} onChange={(e) => setFormData({...formData, license_expiry: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white dark:[color-scheme:dark]" />
+                                    <Input id="license_expiry" type="date" value={formData.license_expiry} onChange={(e) => setFormData({...formData, license_expiry: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 dark:[color-scheme:dark]" />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="photo" className="text-slate-900 dark:text-white">Photo (Max 5MB)</Label>
-                                <Input id="photo" type="file" accept="image/jpeg, image/png, image/webp" onChange={(e) => setFormData({...formData, photo: e.target.files[0]})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white file:text-white file:bg-slate-700" />
+                                <Input id="photo" type="file" accept="image/jpeg, image/png, image/webp" onChange={(e) => setFormData({...formData, photo: e.target.files[0]})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white file:text-white file:bg-slate-700 border-slate-200 dark:border-slate-800" />
                             </div>
                             {formStatus.msg && (
-                                <p className={"text-sm " + (formStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500')}>{formStatus.msg}</p>
+                                <p className={`text-sm ${formStatus.type === 'success' ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{formStatus.msg}</p>
                             )}
                             <DialogFooter>
-                                <Button type="submit" disabled={loading} className="w-full bg-orange-600 hover:bg-orange-700 text-white">Save Guard</Button>
+                                <Button type="submit" disabled={loading} className="w-full bg-orange-600 hover:bg-orange-700 text-white shadow-md shadow-orange-600/20">Save Guard</Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
@@ -346,12 +360,12 @@ const GuardManagement = () => {
             </CardHeader>
             <CardContent className="p-0 sm:p-6 pt-6">
                 <div className="mb-6 px-4 sm:px-0 relative">
-                    <Search className="w-5 h-5 absolute left-7 sm:left-3 top-2.5 text-slate-400" />
+                    <Search className="w-5 h-5 absolute left-7 sm:left-3 top-2.5 text-slate-400 dark:text-slate-500" />
                     <Input
                         placeholder="Search guards by name or phone..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 w-full sm:max-w-md bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800"
+                        className="pl-10 w-full sm:max-w-md bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60"
                     />
                 </div>
                 <div className="border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
@@ -374,25 +388,36 @@ const GuardManagement = () => {
                                         Loading guards...
                                     </TableCell>
                                 </TableRow>
-                            ) : filteredGuards.length > 0 ? (
-                                filteredGuards.map((guard, index) => {
+                            ) : paginatedGuards.length > 0 ? (
+                                paginatedGuards.map((guard, index) => {
                                     const expiryDate = guard.license_expiry ? new Date(guard.license_expiry).toLocaleDateString() : 'N/A';
                                     const licenseWarning = getLicenseWarning(guard.license_expiry);
+                                    const rowNumber = (safeCurrentPage - 1) * guardsPerPage + index + 1;
                                     
                                     return (
                                     <TableRow key={guard.id} className="border-slate-100 dark:border-slate-800">
                                         <TableCell className="text-center font-medium text-slate-500 dark:text-slate-400">
-                                            {index + 1}
+                                            {rowNumber}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 {guard.photo_url ? (
-                                                    <img src={guard.photo_url} alt={guard.name} className="w-8 h-8 rounded-full object-cover bg-slate-100" />
-                                                ) : (
-                                                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500">
-                                                        <UserPlus className="w-4 h-4" />
-                                                    </div>
-                                                )}
+                                                    <img
+                                                        src={guard.photo_url}
+                                                        alt={guard.name}
+                                                        className="w-8 h-8 rounded-full object-cover bg-slate-200 dark:bg-slate-800"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.nextElementSibling.style.display = 'flex';
+                                                        }}
+                                                    />
+                                                ) : null}
+                                                <div
+                                                    className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 items-center justify-center text-orange-600 dark:text-orange-400 font-semibold text-sm"
+                                                    style={{ display: guard.photo_url ? 'none' : 'flex' }}
+                                                >
+                                                    {guard.name ? guard.name.charAt(0).toUpperCase() : <UserPlus className="w-4 h-4" />}
+                                                </div>
                                                 <div className="font-medium text-slate-900 dark:text-slate-100">{guard.name}</div>
                                             </div>
                                         </TableCell>
@@ -443,6 +468,40 @@ const GuardManagement = () => {
                         </TableBody>
                     </Table>
                 </div>
+
+                {/* Pagination Controls */}
+                {!loading && filteredGuards.length > guardsPerPage && (
+                    <div className="flex items-center justify-between px-4 sm:px-0 py-4 border-t border-slate-100 dark:border-slate-800">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Showing {(safeCurrentPage - 1) * guardsPerPage + 1}–{Math.min(safeCurrentPage * guardsPerPage, filteredGuards.length)} of {filteredGuards.length} guards
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={safeCurrentPage <= 1}
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                Prev
+                            </Button>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                Page {safeCurrentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={safeCurrentPage >= totalPages}
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                Next
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </CardContent>
 
             {/* Edit Dialog */}
@@ -457,31 +516,31 @@ const GuardManagement = () => {
                     <form onSubmit={handleEditGuard} className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="edit-name" className="text-slate-900 dark:text-white">Full Name</Label>
-                            <Input id="edit-name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                            <Input id="edit-name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="edit-phone" className="text-slate-900 dark:text-white">Phone</Label>
-                                <Input id="edit-phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                                <Input id="edit-phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="edit-hourly" className="text-slate-900 dark:text-white">Hourly Rate</Label>
-                                <Input id="edit-hourly" type="number" value={formData.hourly_rate} onChange={(e) => setFormData({...formData, hourly_rate: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                                <Input id="edit-hourly" type="number" value={formData.hourly_rate} onChange={(e) => setFormData({...formData, hourly_rate: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800" />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="edit-licenseno" className="text-slate-900 dark:text-white">License No.</Label>
-                                <Input id="edit-licenseno" value={formData.license_no} onChange={(e) => setFormData({...formData, license_no: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                                <Input id="edit-licenseno" value={formData.license_no} onChange={(e) => setFormData({...formData, license_no: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="edit-licenseexp" className="text-slate-900 dark:text-white">License Expiry</Label>
-                                <Input id="edit-licenseexp" type="date" value={formData.license_expiry} onChange={(e) => setFormData({...formData, license_expiry: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white dark:[color-scheme:dark]" />
+                                <Input id="edit-licenseexp" type="date" value={formData.license_expiry} onChange={(e) => setFormData({...formData, license_expiry: e.target.value})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 dark:[color-scheme:dark]" />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="edit-status" className="text-slate-900 dark:text-white">Status</Label>
-                            <select id="edit-status" value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full h-9 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-1 text-sm shadow-sm transition-colors text-slate-900 dark:text-white">
+                            <select id="edit-status" value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full h-9 rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-1 text-sm shadow-sm transition-colors text-slate-900 dark:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 dark:focus-visible:ring-slate-300">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                                 <option value="on_leave">On Leave</option>
@@ -489,13 +548,13 @@ const GuardManagement = () => {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="edit-photo" className="text-slate-900 dark:text-white">New Photo (Max 5MB)</Label>
-                            <Input id="edit-photo" type="file" accept="image/jpeg, image/png, image/webp" onChange={(e) => setFormData({...formData, photo: e.target.files[0]})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white file:text-white file:bg-slate-700" />
+                            <Input id="edit-photo" type="file" accept="image/jpeg, image/png, image/webp" onChange={(e) => setFormData({...formData, photo: e.target.files[0]})} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 file:text-white file:bg-slate-700" />
                         </div>
                         {formStatus.msg && (
-                            <p className={"text-sm " + (formStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500')}>{formStatus.msg}</p>
+                            <p className={`text-sm ${formStatus.type === 'success' ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{formStatus.msg}</p>
                         )}
                         <DialogFooter>
-                            <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">Update Guard</Button>
+                            <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20">Update Guard</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
@@ -513,13 +572,13 @@ const GuardManagement = () => {
                     <form onSubmit={handleAssignGuard} className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="query_id" className="text-slate-900 dark:text-white">Query ID</Label>
-                            <Input id="query_id" type="number" required value={assignQueryId} onChange={(e) => setAssignQueryId(e.target.value)} placeholder="e.g. 10" className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white" />
+                            <Input id="query_id" type="number" required value={assignQueryId} onChange={(e) => setAssignQueryId(e.target.value)} placeholder="e.g. 10" className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 placeholder:text-slate-400/60 dark:placeholder:text-slate-500/60" />
                         </div>
                         {formStatus.msg && (
-                            <p className={"text-sm " + (formStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500')}>{formStatus.msg}</p>
+                            <p className={`text-sm ${formStatus.type === 'success' ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{formStatus.msg}</p>
                         )}
                         <DialogFooter>
-                            <Button type="submit" disabled={loading || !assignQueryId} className="w-full bg-orange-600 hover:bg-orange-700 text-white">Assign Guard</Button>
+                            <Button type="submit" disabled={loading || !assignQueryId} className="w-full bg-orange-600 hover:bg-orange-700 text-white shadow-md shadow-orange-600/20">Assign Guard</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
@@ -535,10 +594,10 @@ const GuardManagement = () => {
                         </DialogDescription>
                     </DialogHeader>
                     {formStatus.msg && (
-                        <p className={"text-sm " + (formStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500')}>{formStatus.msg}</p>
+                        <p className={`text-sm ${formStatus.type === 'success' ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{formStatus.msg}</p>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setIsDeleteOpen(false)} className="bg-transparent border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800">Cancel</Button>
                         <Button variant="destructive" onClick={handleDeleteGuard}>Delete Guard</Button>
                     </DialogFooter>
                 </DialogContent>

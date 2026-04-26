@@ -17,7 +17,7 @@ import {
 } from "../../Components/ui/table";
 import { Badge } from "../../Components/ui/badge";
 import { Button } from "../../Components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -90,6 +90,8 @@ const AuditLog = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedLog, setSelectedLog] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const logsPerPage = 10;
 
     const fetchLogs = (silent = false) => {
         if (!silent) setLoading(true);
@@ -110,6 +112,13 @@ const AuditLog = () => {
         const intervalId = setInterval(() => fetchLogs(true), 5000);
         return () => clearInterval(intervalId);
     }, []);
+
+    const totalPages = Math.max(1, Math.ceil(logs.length / logsPerPage));
+    const safeCurrentPage = Math.min(currentPage, totalPages);
+    const paginatedLogs = logs.slice(
+        (safeCurrentPage - 1) * logsPerPage,
+        safeCurrentPage * logsPerPage
+    );
 
     return (
         <Card className="border-0 shadow-sm bg-white dark:bg-slate-900 overflow-hidden">
@@ -138,8 +147,8 @@ const AuditLog = () => {
                                         Loading audit logs...
                                     </TableCell>
                                 </TableRow>
-                            ) : logs.length > 0 ? (
-                                logs.map((log) => (
+                            ) : paginatedLogs.length > 0 ? (
+                                paginatedLogs.map((log) => (
                                     <TableRow key={log.id} className="border-slate-100 dark:border-slate-800">
                                         <TableCell className="text-slate-500 dark:text-slate-400 whitespace-nowrap">{formatDateTime(log.created_at)}</TableCell>
                                         <TableCell className="font-medium text-slate-900 dark:text-slate-100">
@@ -176,6 +185,40 @@ const AuditLog = () => {
                         </TableBody>
                     </Table>
                 </div>
+
+                {/* Pagination Controls */}
+                {!loading && logs.length > logsPerPage && (
+                    <div className="flex items-center justify-between px-4 sm:px-0 py-4 border-t border-slate-100 dark:border-slate-800">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Showing {(safeCurrentPage - 1) * logsPerPage + 1}–{Math.min(safeCurrentPage * logsPerPage, logs.length)} of {logs.length} logs
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={safeCurrentPage <= 1}
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                Prev
+                            </Button>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                Page {safeCurrentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={safeCurrentPage >= totalPages}
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                Next
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </CardContent>
 
             <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
