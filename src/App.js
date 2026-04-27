@@ -12,6 +12,7 @@ import Unauthorized from './Screens/Unauthorized';
 import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 import ProtectedRoute from './Components/ProtectedRoute';
+import ChatbotWidget from './Components/ChatbotWidget';
 import './App.css';
 import SuperAdminDashboard from './Screens/dashboards/SuperAdminDashboard';
 import ManagerDashboard from './Screens/dashboards/ManagerDashboard';
@@ -57,6 +58,8 @@ function App() {
         </Routes>
       </main>
       <Footer />
+      {/* Persistent chatbot widget — mounted once, persists across all routes */}
+      <ChatbotWidget />
     </div>
   );
 }
