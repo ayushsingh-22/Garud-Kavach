@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Menu, X, Sun, Moon, LogIn, LayoutDashboard, LogOut } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
+import NotificationBell from './NotificationBell';
 
 function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -76,6 +77,9 @@ function Navbar() {
                                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
 
+                            {/* Notification Bell */}
+                            {isLoggedIn && <NotificationBell />}
+
                             {isLoggedIn ? (
                                 <div className="flex items-center gap-3">
                                     <Link
@@ -107,6 +111,7 @@ function Navbar() {
 
                     {/* Mobile menu button */}
                     <div className="flex md:hidden items-center gap-2">
+                        {isLoggedIn && <NotificationBell />}
                         <button
                             onClick={toggleTheme}
                             className="p-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
