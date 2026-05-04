@@ -217,6 +217,23 @@ const MyBookings = () => {
                                         </div>
                                     ))}
                                 </div>
+
+                                {/* Phase-1: Show assigned guards when available */}
+                                {q.assignedGuards && q.assignedGuards.length > 0 && (
+                                    <div className="mt-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg p-4 border border-emerald-200 dark:border-emerald-800">
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-1.5">
+                                            <ShieldCheck className="w-3.5 h-3.5" /> Assigned Guards
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {q.assignedGuards.map((g) => (
+                                                <span key={g.guardId} className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                                                    <Shield className="w-3.5 h-3.5" />
+                                                    {g.guardName}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

@@ -202,8 +202,8 @@ const HRDashboard = () => {
                                                 <TableRow key={shift.id} className="border-slate-100 dark:border-slate-800">
                                                     <TableCell className="font-medium text-slate-900 dark:text-white">{shift.guard_name}</TableCell>
                                                     <TableCell className="text-slate-700 dark:text-slate-300">{shift.client_name}</TableCell>
-                                                    <TableCell className="text-slate-700 dark:text-slate-300">{new Date(shift.start_time).toLocaleString()}</TableCell>
-                                                    <TableCell className="text-slate-700 dark:text-slate-300">{new Date(shift.end_time).toLocaleString()}</TableCell>
+                                                    <TableCell className="text-slate-700 dark:text-slate-300">{new Date(shift.start_time).toLocaleString('en-IN')}</TableCell>
+                                                    <TableCell className="text-slate-700 dark:text-slate-300">{new Date(shift.end_time).toLocaleString('en-IN')}</TableCell>
                                                     <TableCell className="font-medium text-slate-900 dark:text-white">{shift.actual_hours}</TableCell>
                                                     <TableCell><Badge variant="outline" className="shadow-none border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">{shift.status}</Badge></TableCell>
                                                 </TableRow>
@@ -277,8 +277,8 @@ const HRDashboard = () => {
                                                 <TableRow key={p.id || idx} className="border-slate-100 dark:border-slate-800">
                                                     <TableCell className="font-medium text-slate-900 dark:text-white">{p.guard_name}</TableCell>
                                                     <TableCell className="text-right font-medium text-slate-900 dark:text-white">{p.total_hours}</TableCell>
-                                                    <TableCell className="text-right text-slate-700 dark:text-slate-300">₹{p.rate_per_hour.toLocaleString()}</TableCell>
-                                                    <TableCell className="text-right font-bold text-slate-900 dark:text-white">₹{p.total_pay.toLocaleString()}</TableCell>
+                                                    <TableCell className="text-right text-slate-700 dark:text-slate-300">₹{p.rate_per_hour.toLocaleString('en-IN')}</TableCell>
+                                                    <TableCell className="text-right font-bold text-slate-900 dark:text-white">₹{p.total_pay.toLocaleString('en-IN')}</TableCell>
                                                     <TableCell>
                                                         <Badge variant={p.status === 'paid' ? 'success' : 'pending'} className="shadow-none">{p.status}</Badge>
                                                     </TableCell>

@@ -1,0 +1,245 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Finance Dashboard — Styles
+   Matches project palette: Geist font, slate dark theme, orange accent
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens (scoped to .fd-root) ──────────────────────────────── */
+.fd-root {
+  --bg:        #020617;           /* slate-950  */
+  --surface:   #0f172a;           /* slate-900  */
+  --surface2:  #1e293b;           /* slate-800  */
+  --border:    #1e293b;           /* slate-800  */
+  --border2:   #334155;           /* slate-700  */
+  --text:      #f8fafc;           /* slate-50   */
+  --muted:     #94a3b8;           /* slate-400  */
+  --faint:     #334155;           /* slate-700  */
+  --gold:      #f97316;           /* orange-500 */
+  --gold-dim:  rgba(249,115,22,.12);
+  --gold-glow: rgba(249,115,22,.25);
+  --green:     #10b981;           /* emerald-500 */
+  --green-dim: rgba(16,185,129,.10);
+  --red:       #ef4444;           /* red-500    */
+  --red-dim:   rgba(239,68,68,.10);
+  --amber:     #f59e0b;           /* amber-500  */
+  --r:         14px;
+  --font-ui:   'Geist Variable', sans-serif;
+  --font-mono: 'Geist Variable', monospace;
+}
+
+/* ─── Base ─────────────────────────────────────────────────────────────── */
+.fd-root * { box-sizing: border-box; }
+.fd-root { font-family: var(--font-ui); color: var(--text); background: var(--bg); }
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+.fd-root ::-webkit-scrollbar { width: 4px; height: 4px; }
+.fd-root ::-webkit-scrollbar-track { background: transparent; }
+.fd-root ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* ─── Sidebar Nav Button ──────────────────────────────────────────────── */
+.fd-nav-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background .18s, color .18s;
+  width: 100%;
+  text-align: left;
+  color: var(--muted);
+  letter-spacing: .01em;
+}
+.fd-nav-btn:hover { background: var(--surface2); color: var(--text); }
+.fd-nav-btn.active { background: var(--gold-dim); color: var(--gold); }
+.fd-nav-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  background: var(--gold);
+  border-radius: 0 4px 4px 0;
+}
+
+/* ─── KPI Card ─────────────────────────────────────────────────────────── */
+.fd-kpi {
+  position: relative;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.fd-kpi:hover {
+  border-color: var(--border2);
+  box-shadow: 0 0 0 1px var(--border2), 0 8px 30px rgba(0,0,0,.4);
+}
+.fd-kpi .top-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+
+/* ─── Glass Panel ──────────────────────────────────────────────────────── */
+.fd-panel {
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* ─── Table ────────────────────────────────────────────────────────────── */
+.fd-table-head th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.fd-table-row { border-bottom: 1px solid var(--border); transition: background .12s; }
+.fd-table-row:hover { background: var(--surface2); }
+.fd-table-row:last-child { border-bottom: none; }
+.fd-table-row td { padding: 13px 14px; font-size: 13px; vertical-align: middle; }
+
+/* ─── Mono text ─────────────────────────────────────────────────────────── */
+.mono { font-family: var(--font-mono); }
+
+/* ─── Status Chips ─────────────────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: .02em;
+}
+.chip-paid    { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,.2); }
+.chip-pending { background: rgba(245,158,11,.12); color: var(--amber); border: 1px solid rgba(245,158,11,.2); }
+.chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.chip-dot-paid    { background: var(--green); }
+.chip-dot-pending { background: var(--amber); animation: fd-pulse 1.4s infinite; }
+
+/* ─── Filter Chip ──────────────────────────────────────────────────────── */
+.fchip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background .14s, color .14s;
+  letter-spacing: .02em;
+}
+.fchip-off          { background: var(--surface2); color: var(--muted); }
+.fchip-off:hover    { background: var(--border2); color: var(--text); }
+.fchip-on           { background: var(--gold); color: #020617; }
+.fchip-paid         { background: rgba(16,185,129,.15); color: var(--green); border: 1px solid rgba(16,185,129,.25); }
+.fchip-pending      { background: rgba(245,158,11,.15); color: var(--amber); border: 1px solid rgba(245,158,11,.25); }
+
+/* ─── Mark Paid Button ─────────────────────────────────────────────────── */
+.btn-mark-paid {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(16,185,129,.25);
+  transition: background .14s;
+  letter-spacing: .01em;
+  cursor: pointer;
+}
+.btn-mark-paid:hover { background: rgba(16,185,129,.2); }
+
+/* ─── Add Button ─────────────────────────────────────────────────────────── */
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #f8fafc;
+  letter-spacing: .02em;
+  transition: opacity .14s, box-shadow .14s;
+  cursor: pointer;
+}
+.btn-add:hover { opacity: .9; box-shadow: 0 0 20px var(--gold-glow); }
+
+/* ─── Pagination Button ─────────────────────────────────────────────────── */
+.pg-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: background .12s, color .12s;
+  cursor: pointer;
+}
+.pg-btn:hover:not(:disabled) { background: var(--surface2); color: var(--text); }
+.pg-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+/* ─── Category Badge ─────────────────────────────────────────────────────── */
+.cat-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid;
+  letter-spacing: .02em;
+}
+
+/* ─── Section Label Divider ──────────────────────────────────────────────── */
+.sec-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ─── Stat Mini Card ─────────────────────────────────────────────────────── */
+.stat-mini {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color .18s;
+}
+.stat-mini:hover { border-color: var(--border2); }
+
+/* ─── Ratio Bar ──────────────────────────────────────────────────────────── */
+.ratio-bar { height: 8px; border-radius: 99px; overflow: hidden; background: var(--surface2); display: flex; }
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes fd-pulse   { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+@keyframes fd-fadeUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.fd-animate    { animation: fd-fadeUp .35s ease both; }
+.fd-animate-d1 { animation-delay: .05s; }
+.fd-animate-d2 { animation-delay: .10s; }
+.fd-animate-d3 { animation-delay: .15s; }
+.fd-animate-d4 { animation-delay: .20s; }
+.fd-animate-d5 { animation-delay: .25s; }

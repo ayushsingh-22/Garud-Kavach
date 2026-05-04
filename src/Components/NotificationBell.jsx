@@ -8,6 +8,8 @@ const typeConfig = {
     warning: { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10', ring: 'ring-amber-200 dark:ring-amber-500/20', gradient: 'from-amber-500 to-orange-500' },
     success: { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10', ring: 'ring-emerald-200 dark:ring-emerald-500/20', gradient: 'from-emerald-500 to-green-600' },
     error: { icon: XCircle, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10', ring: 'ring-red-200 dark:ring-red-500/20', gradient: 'from-red-500 to-rose-600' },
+    // Phase-2: SOS-specific urgent notification styling
+    sos: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100 dark:bg-red-500/20', ring: 'ring-red-300 dark:ring-red-500/30', gradient: 'from-red-600 to-rose-700' },
 };
 
 function timeAgo(dateString) {
@@ -129,12 +131,7 @@ function NotificationBell() {
         }
     };
 
-    const sendTestNotification = async () => {
-        try {
-            await apiFetch('/api/notifications/test', { method: 'POST' });
-            await fetchNotifications();
-        } catch { /* ignore */ }
-    };
+
 
     if (!user) return null;
 
@@ -281,16 +278,7 @@ function NotificationBell() {
                         )}
                     </div>
 
-                    {/* Footer — test notification */}
-                    <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                        <button
-                            onClick={sendTestNotification}
-                            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 transition-colors"
-                        >
-                            <Bell className="w-3.5 h-3.5" />
-                            Send test notification
-                        </button>
-                    </div>
+
                 </div>
             )}
         </div>

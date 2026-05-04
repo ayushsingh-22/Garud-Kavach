@@ -3,8 +3,10 @@ import apiFetch from "../../utils/apiFetch";
 import QueryManagement from '../QueryManagement';
 import GuardManagement from './GuardManagement';
 import AuditLog from './AuditLog';
+import GuardTracking from './GuardTracking';
+import LiveMapDashboard from './LiveMapDashboard';
 import { Card, CardContent } from "../../Components/ui/card";
-import { ShieldAlert, Users, ClipboardList, CheckCircle, LayoutDashboard, FileText, Activity } from 'lucide-react';
+import { ShieldAlert, Users, ClipboardList, CheckCircle, LayoutDashboard, FileText, Activity, MapPin, Map } from 'lucide-react';
 
 const OverviewCard = ({ title, value, icon: Icon, trend, colorClass }) => (
     <Card className="border-0 shadow-sm bg-white dark:bg-slate-900 overflow-visible">
@@ -70,10 +72,12 @@ const ManagerDashboard = () => {
     }, [activeSection]);
 
     const navItems = [
-        { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-        { id: 'queries', label: 'Client Queries', icon: ClipboardList },
-        { id: 'guards', label: 'Guard Management', icon: ShieldAlert },
-        { id: 'audit', label: 'Audit Logs', icon: FileText },
+        { id: 'overview',  label: 'Overview',        icon: LayoutDashboard },
+        { id: 'queries',   label: 'Client Queries',  icon: ClipboardList },
+        { id: 'guards',    label: 'Guard Management', icon: ShieldAlert },
+        { id: 'tracking',  label: 'Live Tracking',    icon: MapPin },
+        { id: 'map',       label: 'Live Map',         icon: Map },
+        { id: 'audit',     label: 'Audit Logs',       icon: FileText },
     ];
 
     const renderContent = () => {
@@ -82,6 +86,10 @@ const ManagerDashboard = () => {
                 return <QueryManagement />;
             case 'guards':
                 return <GuardManagement />;
+            case 'tracking':
+                return <GuardTracking />;
+            case 'map':
+                return <LiveMapDashboard />;
             case 'audit':
                 return <AuditLog />;
             case 'overview':

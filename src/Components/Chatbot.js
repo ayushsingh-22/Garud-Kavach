@@ -404,8 +404,6 @@ const ChatBot = () => {
   const updateFormData = (field, value) => {
     setFormData((prev) => {
       const newFormData = { ...prev, [field]: value };
-      console.log(`Updated ${field} to ${value}`);
-      console.log("Current form data:", newFormData);
       return newFormData;
     });
   };
@@ -439,7 +437,6 @@ const ChatBot = () => {
 
   const askNextQuestion = (field) => {
     setCurrentField(field);
-    console.log(`Asking question for field: ${field}`);
 
     // Add a small delay to ensure UI updates properly
     setTimeout(() => {
@@ -557,11 +554,6 @@ ${formData.message ? `\n📝 *Additional Message*\n"${formData.message}"` : ""}
         submitted_at: new Date().toISOString(),
         status: "Pending",
       };
-
-      console.log(
-        "Submitting booking data:",
-        JSON.stringify(bookingData, null, 2)
-      );
 
       const response = await apiFetch("/api/add-query", {
         method: "POST",

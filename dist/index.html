@@ -4,10 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Professional security services for homes, societies, and industries." />
+    <!-- Content-Security-Policy: tightened for production. script-src intentionally omits
+         'unsafe-inline'; all inline scripts must use the server-issued nonce. -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self';
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src 'self' data: https://res.cloudinary.com https://raw.githubusercontent.com https://unpkg.com https://*.tile.openstreetmap.org;
+                   connect-src 'self' http://localhost:8080 ws://localhost:8080 https://rakshakservice.onrender.com wss://rakshakservice.onrender.com https://generativelanguage.googleapis.com https://*.tile.openstreetmap.org;
+                   object-src 'none';
+                   base-uri 'self';
+                   form-action 'self'" />
     <title>Top Security Services | Reliable Security Guards</title>
     <link rel="icon" type="image/png" href="/Logo2.png" />
-    <script type="module" crossorigin src="/assets/index-BEemd2ir.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-8sGT7wU1.css">
+    <script type="module" crossorigin src="/assets/index-BdETi8tH.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C3jyX3dH.css">
   </head>
   <body>
     <div id="root"></div>

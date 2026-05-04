@@ -9,6 +9,13 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const checkUser = async () => {
+            // Don't hit the server when we're already on a public auth page —
+            // there's no session cookie to validate and it causes a redirect loop.
+            const authPaths = ['/login', '/signup', '/register'];
+            if (authPaths.some((p) => window.location.pathname.startsWith(p))) {
+                setLoading(false);
+                return;
+            }
             try {
                 const response = await apiFetch('/api/check-login');
                 if (response.ok) {

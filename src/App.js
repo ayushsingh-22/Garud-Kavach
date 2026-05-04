@@ -38,14 +38,19 @@ function App() {
           <Route path="/register" element={<RegisterScreen />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Protected Routes */}
-          <Route 
-            path="/dashboard" 
+          {/* Protected Routes — /dashboard works for every role */}
+          <Route
+            path="/dashboard"
             element={
-              <ProtectedRoute allowedRoles={['superadmin', 'manager']}>
-                {user?.role === 'superadmin' ? <SuperAdminDashboard /> : <ManagerDashboard />}
+              <ProtectedRoute allowedRoles={['superadmin', 'manager', 'finance', 'hr', 'customer']}>
+                {user?.role === 'superadmin' ? <SuperAdminDashboard />
+                  : user?.role === 'manager'    ? <ManagerDashboard />
+                  : user?.role === 'finance'    ? <FinanceDashboard />
+                  : user?.role === 'hr'         ? <HRDashboard />
+                  : user?.role === 'customer'   ? <CustomerDashboard />
+                  : null}
               </ProtectedRoute>
-            } 
+            }
           />
           
           {/* Explicit Role-Based Routes */}

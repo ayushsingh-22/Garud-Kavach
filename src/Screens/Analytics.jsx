@@ -40,7 +40,6 @@ const Analytics = () => {
         return res.json();
       })
       .then((data) => {
-        console.log("Analytics fetched:", data);
         setAnalytics(data);
         setLoading(false);
       })
@@ -77,7 +76,7 @@ const Analytics = () => {
                       <div className="medal-header">
                         <div className={`medal-rank rank-${index + 1}`}>{index + 1}</div>
                         <div className="medal-name">{item.service}</div>
-                        <div className="medal-revenue">₹{item.revenue.toLocaleString()}</div>
+                        <div className="medal-revenue">₹{item.revenue.toLocaleString('en-IN')}</div>
                       </div>
                       <div className="medal-progress-container">
                         <div 
