@@ -343,17 +343,26 @@ const QueryManagement = () => {
                       <div className="flex items-center justify-end gap-2">
                         {/* Phase-1: Hide Auto-Assign for Resolved / Rejected queries */}
                         {query.status !== "Resolved" && query.status !== "Rejected" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
+                          <button
                             disabled={autoAssigning === query.id}
                             onClick={() => handleAutoAssign(query.id)}
                             title="Auto-assign nearest available guards to this query"
-                            className="h-8 px-2 text-xs border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-900/20"
+                            className={`relative group inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all duration-300 ${
+                              autoAssigning === query.id
+                                ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white cursor-wait shadow-md shadow-orange-300/30 dark:shadow-orange-500/20'
+                                : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-sm hover:shadow-lg hover:shadow-orange-400/25 dark:hover:shadow-orange-500/20 hover:-translate-y-[1px] active:translate-y-0'
+                            } disabled:opacity-70`}
                           >
-                            <UserCheck className="w-3 h-3 mr-1" />
+                            {autoAssigning === query.id ? (
+                              <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                              </svg>
+                            ) : (
+                              <UserCheck className="w-3.5 h-3.5" />
+                            )}
                             {autoAssigning === query.id ? 'Assigning…' : 'Auto-Assign'}
-                          </Button>
+                          </button>
                         )}
                         <Select
                           onValueChange={(newStatus) => handleStatusChange(query.id, newStatus)}
@@ -625,18 +634,30 @@ const QueryManagement = () => {
 
                   {/* Auto Assign */}
                   {selectedQuery.status !== "Resolved" && selectedQuery.status !== "Rejected" && (
-                    <Button
-                      size="sm"
-                      className="h-9 gap-1.5 text-sm bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0 shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-200"
+                    <button
                       disabled={autoAssigning === selectedQuery.id}
                       onClick={() => {
                         handleAutoAssign(selectedQuery.id);
                         setSelectedQuery((prev) => prev ? { ...prev, status: "Resolved" } : prev);
                       }}
+                      className={`relative group inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                        autoAssigning === selectedQuery.id
+                          ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white cursor-wait shadow-lg shadow-orange-300/30 dark:shadow-orange-500/20'
+                          : 'bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:from-amber-600 hover:via-orange-600 hover:to-red-500 text-white shadow-md hover:shadow-xl shadow-orange-400/25 hover:shadow-orange-500/30 dark:shadow-orange-500/15 dark:hover:shadow-orange-500/25 hover:-translate-y-[1px] active:translate-y-0'
+                      } disabled:opacity-70`}
                     >
-                      <UserCheck className="w-4 h-4" />
-                      {autoAssigning === selectedQuery.id ? "Assigning..." : "Auto Assign"}
-                    </Button>
+                      {/* Glow ring on hover */}
+                      <span className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ring-2 ring-orange-400/40 dark:ring-orange-500/30" />
+                      {autoAssigning === selectedQuery.id ? (
+                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      ) : (
+                        <UserCheck className="w-4 h-4" />
+                      )}
+                      <span className="relative">{autoAssigning === selectedQuery.id ? "Assigning..." : "Auto Assign"}</span>
+                    </button>
                   )}
 
                   <div className="flex-1" />
