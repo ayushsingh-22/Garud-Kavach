@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import apiFetch from "../../utils/apiFetch";
 import QueryManagement from '../QueryManagement';
 import GuardManagement from './GuardManagement';
@@ -26,7 +27,16 @@ const OverviewCard = ({ title, value, icon: Icon, trend, colorClass }) => (
 );
 
 const ManagerDashboard = () => {
-    const [activeSection, setActiveSection] = useState('overview');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [activeSection, setActiveSection] = useState(() => searchParams.get('section') || 'overview');
+
+    useEffect(() => {
+        const section = searchParams.get('section');
+        if (section && section !== activeSection) {
+            setActiveSection(section);
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams]);
     const [stats, setStats] = useState({
         activeQueries: 0,
         pendingRequests: 0,

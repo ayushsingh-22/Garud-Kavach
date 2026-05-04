@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import apiFetch from "../../utils/apiFetch";
 import { useAuth } from '../../contexts/AuthContext';
 import { Card, CardContent } from "../../Components/ui/card";
@@ -1075,7 +1076,16 @@ const MyProfile = () => {
 
 // ─── Main Dashboard ──────────────────────────────────────────────
 const CustomerDashboard = () => {
-    const [activeSection, setActiveSection] = useState('bookings');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [activeSection, setActiveSection] = useState(() => searchParams.get('section') || 'bookings');
+
+    useEffect(() => {
+        const section = searchParams.get('section');
+        if (section && section !== activeSection) {
+            setActiveSection(section);
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams]);
 
     const navItems = [
         { id: 'bookings', label: 'My Bookings', icon: ClipboardList, desc: 'View & track all your service requests' },

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import apiFetch from "../../utils/apiFetch";
 import GuardManagement from './GuardManagement';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../Components/ui/card";
@@ -11,7 +12,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { AlertTriangle, Calendar, Users, Clock, Banknote, FileCheck, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const HRDashboard = () => {
-    const [activeSection, setActiveSection] = useState('guards');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [activeSection, setActiveSection] = useState(() => searchParams.get('section') || 'guards');
+
+    useEffect(() => {
+        const section = searchParams.get('section');
+        if (section && section !== activeSection) {
+            setActiveSection(section);
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams]);
     const [month, setMonth] = useState(() => {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;

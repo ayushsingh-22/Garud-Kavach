@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import apiFetch from "../../utils/apiFetch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../Components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../Components/ui/table";
@@ -45,7 +46,16 @@ const CustomTooltip = ({ active, payload, label }) => {
    MAIN COMPONENT
 ═══════════════════════════════════════════════════════════════════════════════ */
 const FinanceDashboard = () => {
-    const [activeSection, setActiveSection] = useState('overview');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [activeSection, setActiveSection] = useState(() => searchParams.get('section') || 'overview');
+
+    useEffect(() => {
+        const section = searchParams.get('section');
+        if (section && section !== activeSection) {
+            setActiveSection(section);
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams]);
     const [month, setMonth] = useState(() => {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;

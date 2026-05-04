@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Bell, Check, CheckCheck, Info, AlertTriangle, CheckCircle2, XCircle, X, BellOff, Trash2, Loader2 } from 'lucide-react';
+import { Bell, Check, CheckCheck, Info, AlertTriangle, CheckCircle2, XCircle, X, BellOff, Trash2, Loader2, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import apiFetch from '../utils/apiFetch';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -42,6 +43,7 @@ function groupByTime(notifications) {
 
 function NotificationBell() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -131,6 +133,27 @@ function NotificationBell() {
         }
     };
 
+    // Map notification to a dashboard section based on type and message content
+    const getNotificationTarget = (n) => {
+        const msg = (n.message || '').toLowerCase();
+        const type = (n.type || '').toLowerCase();
+
+        if (type === 'sos' || msg.includes('sos')) return 'tracking';
+        if (msg.includes('incident')) return 'tracking';
+        if (msg.includes('shift') || msg.includes('schedule')) return 'guards';
+        if (type === 'shift') return 'guards';
+        if (msg.includes('query') || msg.includes('request') || msg.includes('assigned') || msg.includes('status')) return 'queries';
+        if (msg.includes('guard')) return 'queries';
+        return 'queries'; // default
+    };
+
+    const handleNotificationClick = (n) => {
+        const section = getNotificationTarget(n);
+        dismissOne(n.id);
+        setOpen(false);
+        navigate(`/dashboard?section=${section}`);
+    };
+
 
 
     if (!user) return null;
@@ -146,7 +169,8 @@ function NotificationBell() {
         return (
             <div
                 key={n.id}
-                className={`group relative flex items-start gap-3 px-4 py-3.5 transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-default ${isDismissing ? 'opacity-0 -translate-x-4 max-h-0 py-0 overflow-hidden' : 'opacity-100 translate-x-0 max-h-40'}`}
+                onClick={() => handleNotificationClick(n)}
+                className={`group relative flex items-start gap-3 px-4 py-3.5 transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer ${isDismissing ? 'opacity-0 -translate-x-4 max-h-0 py-0 overflow-hidden' : 'opacity-100 translate-x-0'}`}
             >
                 {/* Type indicator line */}
                 <div className={`absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full bg-gradient-to-b ${config.gradient}`} />
@@ -158,12 +182,17 @@ function NotificationBell() {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0 pr-6">
-                    <p className="text-[13px] leading-relaxed text-slate-700 dark:text-slate-200">
+                    <p className="text-[13px] leading-relaxed text-slate-700 dark:text-slate-200 line-clamp-2">
                         {n.message}
                     </p>
-                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 font-medium">
-                        {timeAgo(n.created_at)}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                            {timeAgo(n.created_at)}
+                        </p>
+                        <span className="text-[10px] text-orange-500 dark:text-orange-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                            View <ExternalLink className="w-2.5 h-2.5" />
+                        </span>
+                    </div>
                 </div>
 
                 {/* Dismiss button */}

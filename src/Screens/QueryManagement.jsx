@@ -27,6 +27,15 @@ import {
   SelectValue,
 } from "../Components/ui/select";
 import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../Components/ui/dialog";
+import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -37,6 +46,20 @@ import {
   ChevronUp,
   AlertTriangle,
   X,
+  Mail,
+  Phone,
+  Calendar,
+  Clock,
+  Shield,
+  MessageSquare,
+  Camera,
+  Car,
+  Cross,
+  Radio,
+  Flame,
+  IndianRupee,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
 const getStatusVariant = (status) => {
@@ -108,6 +131,7 @@ const QueryManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [autoAssigning, setAutoAssigning] = useState(null); // queryId being processed
   const [autoAssignError, setAutoAssignError] = useState(null); // { queryId, message }
+  const [selectedQuery, setSelectedQuery] = useState(null); // query detail modal
   const PAGE_SIZE = 10;
 
   const fetchQueries = (silent = false) => {
@@ -156,6 +180,14 @@ const QueryManagement = () => {
               return updated;
             })
           );
+          // Sync popup detail view with status/guard changes
+          setSelectedQuery((prev) => {
+            if (!prev || prev.id !== id) return prev;
+            const updated = { ...prev, status: newStatus };
+            if (data.guardsRemoved) updated.assignedGuards = [];
+            if (data.assignedGuards) updated.assignedGuards = data.assignedGuards;
+            return updated;
+          });
           // Show warning if auto-assign found no available guards
           if (data.autoAssignWarning) {
             setAutoAssignError({ queryId: id, message: `⚠️ Auto-assign failed: ${data.autoAssignWarning}. Try assigning manually or pick a different time window.` });
@@ -186,6 +218,12 @@ const QueryManagement = () => {
               prev.map((q) =>
                 q.id === queryId ? { ...q, assignedGuards: data.assignedGuards, status: "Resolved" } : q
               )
+            );
+            // Update the popup detail view with assigned guards
+            setSelectedQuery((prev) =>
+              prev && prev.id === queryId
+                ? { ...prev, assignedGuards: data.assignedGuards, status: "Resolved" }
+                : prev
             );
           }
         } else {
@@ -287,7 +325,7 @@ const QueryManagement = () => {
                 </TableRow>
               ) : paginatedQueries.length > 0 ? (
                 paginatedQueries.map((query) => (
-                  <TableRow key={query.id} className="border-slate-100 dark:border-slate-800">
+                  <TableRow key={query.id} className="border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" onClick={() => setSelectedQuery(query)}>
                     <TableCell>
                       <div className="font-medium text-slate-900 dark:text-slate-100">{query.name}</div>
                       <div className="text-sm text-slate-500 dark:text-slate-400">{query.email}</div>
@@ -301,7 +339,7 @@ const QueryManagement = () => {
                     <TableCell>
                       <Badge variant={getStatusVariant(query.status)} className="shadow-none">{query.status}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         {/* Phase-1: Hide Auto-Assign for Resolved / Rejected queries */}
                         {query.status !== "Resolved" && query.status !== "Rejected" && (
@@ -388,6 +426,233 @@ const QueryManagement = () => {
             </Button>
         </div>
       </CardFooter>
+
+      {/* ─── Query Detail Modal ─────────────────────────────────────────────── */}
+      <Dialog open={!!selectedQuery} onOpenChange={(open) => !open && setSelectedQuery(null)}>
+        <DialogContent className="sm:max-w-[680px] max-h-[85vh] overflow-y-auto p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 shadow-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" showCloseButton={false}>
+          {selectedQuery && (
+            <>
+              {/* ── Header with avatar & status ── */}
+              <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 px-6 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-orange-500/20">
+                    {selectedQuery.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <DialogHeader className="gap-1">
+                      <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
+                        {selectedQuery.name}
+                      </DialogTitle>
+                      <DialogDescription className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">#{selectedQuery.id}</span>
+                        <span>&middot;</span>
+                        <span>{selectedQuery.service}</span>
+                      </DialogDescription>
+                    </DialogHeader>
+                  </div>
+                  <Badge variant={getStatusVariant(selectedQuery.status)} className="shadow-none flex-shrink-0 mt-1">{selectedQuery.status}</Badge>
+                  <DialogClose asChild>
+                    <button className="flex-shrink-0 mt-0.5 w-8 h-8 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 dark:hover:text-red-400 dark:hover:border-red-800 dark:hover:bg-red-900/20 transition-all duration-200 shadow-sm">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </DialogClose>
+                </div>
+              </div>
+
+              <div className="px-6 py-5 space-y-6">
+                {/* ── Contact Information ── */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">Contact Information</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/50">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center">
+                        <Mail className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                      </div>
+                      <span className="text-sm text-slate-700 dark:text-slate-300 truncate">{selectedQuery.email}</span>
+                    </div>
+                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/50">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center">
+                        <Phone className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                      </div>
+                      <span className="text-sm text-slate-700 dark:text-slate-300">{selectedQuery.phone || "N/A"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Deployment Parameters ── */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">Deployment Parameters</h4>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {[
+                      { icon: Shield, label: "Service Type", value: selectedQuery.service },
+                      { icon: UserCheck, label: "Guards Required", value: `${selectedQuery.numGuards || "1"} Guards` },
+                      { icon: Clock, label: "Duration", value: `${selectedQuery.durationValue || "—"} ${selectedQuery.durationType || ""}` },
+                      { icon: Calendar, label: "Submitted", value: formatDateTime(selectedQuery.submitted_at) },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-start gap-3 px-3 py-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/50">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-md bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
+                          <item.icon className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">{item.label}</p>
+                          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-0.5 truncate">{item.value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── Equipment Status ── */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">Equipment Status</h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Camera", value: selectedQuery.cameraRequired, icon: Camera },
+                      { label: "Vehicle", value: selectedQuery.vehicleRequired, icon: Car },
+                      { label: "First Aid", value: selectedQuery.firstAid, icon: Cross },
+                      { label: "Radio", value: selectedQuery.walkieTalkie, icon: Radio },
+                      { label: "Armor", value: selectedQuery.bulletProof, icon: Shield },
+                      { label: "Fire Safe", value: selectedQuery.fireSafety, icon: Flame },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className={`flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border transition-colors ${
+                          item.value
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/60"
+                            : "bg-slate-50 text-slate-400 border-slate-150 dark:bg-slate-800/30 dark:text-slate-500 dark:border-slate-700/50"
+                        }`}
+                      >
+                        <item.icon className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                        {item.value ? <CheckCircle2 className="w-3.5 h-3.5 ml-auto flex-shrink-0" /> : <XCircle className="w-3.5 h-3.5 ml-auto flex-shrink-0 opacity-50" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── Client Message ── */}
+                {selectedQuery.message && (
+                  <div className="space-y-3">
+                    <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">Client Message</h4>
+                    <div className="relative rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-400 dark:bg-orange-500" />
+                      <div className="flex gap-3 p-4 pl-5">
+                        <MessageSquare className="w-4 h-4 text-orange-400 dark:text-orange-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap italic">"{selectedQuery.message}"</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Cost & Status Bar ── */}
+                <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50">
+                  <div className="flex items-center gap-2.5">
+                    <Badge variant={getStatusVariant(selectedQuery.status)} className="shadow-none">{selectedQuery.status}</Badge>
+                  </div>
+                  {selectedQuery.cost > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-slate-400 dark:text-slate-500 mr-1">Est. Cost</span>
+                      <IndianRupee className="w-4 h-4 text-orange-500" />
+                      <span className="text-base font-bold text-slate-900 dark:text-white tracking-tight">{selectedQuery.cost.toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Assigned Guards ── */}
+                {selectedQuery.assignedGuards && selectedQuery.assignedGuards.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">Assigned Commanders</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedQuery.assignedGuards.map((g, idx) => (
+                        <div
+                          key={`${g.guardId}-${idx}`}
+                          className="inline-flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60"
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                          {g.guardName}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Action Footer ── */}
+              <div className="sticky bottom-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-t border-slate-200 dark:border-slate-700/60 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  {/* Status Change */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 hidden sm:inline">Status</span>
+                    <Select
+                      value={selectedQuery.status}
+                      onValueChange={(val) => {
+                        handleStatusChange(selectedQuery.id, val);
+                        setSelectedQuery((prev) => prev ? { ...prev, status: val } : prev);
+                      }}
+                    >
+                      <SelectTrigger className="w-[170px] h-9 text-sm font-medium bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-700 focus:ring-orange-500/30 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                            selectedQuery.status === 'Resolved' ? 'bg-emerald-500' :
+                            selectedQuery.status === 'In Progress' ? 'bg-blue-500' :
+                            selectedQuery.status === 'Rejected' ? 'bg-red-500' :
+                            'bg-amber-500'
+                          }`} />
+                          <SelectValue />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl rounded-xl p-1 text-slate-700 dark:text-slate-100">
+                        {[
+                          { value: "Pending", color: "bg-amber-500", label: "Pending" },
+                          { value: "In Progress", color: "bg-blue-500", label: "In Progress" },
+                          { value: "Resolved", color: "bg-emerald-500", label: "Resolved" },
+                          { value: "Rejected", color: "bg-red-500", label: "Rejected" },
+                        ].map((s) => (
+                          <SelectItem
+                            key={s.value}
+                            value={s.value}
+                            className="rounded-lg text-sm font-medium text-slate-700 dark:text-slate-100 cursor-pointer focus:bg-slate-100 dark:focus:bg-slate-700 focus:text-slate-900 dark:focus:text-white"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.color}`} />
+                              {s.label}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Auto Assign */}
+                  {selectedQuery.status !== "Resolved" && selectedQuery.status !== "Rejected" && (
+                    <Button
+                      size="sm"
+                      className="h-9 gap-1.5 text-sm bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-0 shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-200"
+                      disabled={autoAssigning === selectedQuery.id}
+                      onClick={() => {
+                        handleAutoAssign(selectedQuery.id);
+                        setSelectedQuery((prev) => prev ? { ...prev, status: "Resolved" } : prev);
+                      }}
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      {autoAssigning === selectedQuery.id ? "Assigning..." : "Auto Assign"}
+                    </Button>
+                  )}
+
+                  <div className="flex-1" />
+
+                  {/* Close */}
+                  <DialogClose asChild>
+                    <Button variant="outline" size="sm" className="h-9 px-5 text-sm font-medium border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                      Close
+                    </Button>
+                  </DialogClose>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
