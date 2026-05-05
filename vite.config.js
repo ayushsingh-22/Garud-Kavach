@@ -29,11 +29,26 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+        on: {
+          error(err, _req, _res) {
+            if (!['ECONNRESET', 'ECONNREFUSED'].includes(err.code)) {
+              console.error('[api proxy]', err.message)
+            }
+          }
+        }
       },
       '/ws': {
         target: 'ws://localhost:8080',
         ws: true,
         changeOrigin: true,
+        rewriteWsOrigin: true,
+        on: {
+          error(err, _req, _socket) {
+            if (!['ECONNRESET', 'ECONNREFUSED'].includes(err.code)) {
+              console.error('[ws proxy]', err.message)
+            }
+          }
+        }
       },
     },
   },

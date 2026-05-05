@@ -14,8 +14,9 @@ import {
     LayoutDashboard, ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight,
     Plus, CircleDot, Clock, Activity, BadgeCheck, FileText, Search,
     Sparkles, Eye, MoreHorizontal, Filter, PieChart, ShieldCheck, Banknote,
-    Zap
+    Zap, CircleCheck
 } from 'lucide-react';
+import { useTheme } from '../../Components/ThemeProvider';
 import '../Styles/FinanceDashboard.css';
 
 /* ─── Category color map ─────────────────────────────────────────────────────── */
@@ -33,8 +34,8 @@ const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     const p = payload[0];
     return (
-        <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 10, padding: '10px 14px', fontFamily: "'Geist Variable', monospace" }}>
-            <p style={{ color: '#94a3b8', fontSize: 10, marginBottom: 4, letterSpacing: '.08em', textTransform: 'uppercase' }}>{label}</p>
+        <div style={{ background: 'var(--tooltip-bg)', border: '1px solid var(--tooltip-border)', borderRadius: 10, padding: '10px 14px', fontFamily: "'Geist Variable', monospace" }}>
+            <p style={{ color: 'var(--tooltip-text)', fontSize: 10, marginBottom: 4, letterSpacing: '.08em', textTransform: 'uppercase' }}>{label}</p>
             <p style={{ color: p.fill === '#10b981' ? '#10b981' : '#ef4444', fontSize: 15, fontWeight: 700 }}>
                 ₹{Number(p.value).toLocaleString('en-IN')}
             </p>
@@ -48,6 +49,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 const FinanceDashboard = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeSection, setActiveSection] = useState(() => searchParams.get('section') || 'overview');
+    const { theme } = useTheme();
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const chartMuted = isDark ? '#94a3b8' : '#64748b';
+    const chartGrid = isDark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.06)';
 
     useEffect(() => {
         const section = searchParams.get('section');
@@ -298,13 +303,13 @@ const FinanceDashboard = () => {
                     <div style={{ height: 280, padding: '20px 16px 8px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,.04)" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartGrid} />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false}
-                                    tick={{ fill: '#94a3b8', fontSize: 12, fontFamily: "'Geist Variable', sans-serif", fontWeight: 600 }} />
+                                    tick={{ fill: chartMuted, fontSize: 12, fontFamily: "'Geist Variable', sans-serif", fontWeight: 600 }} />
                                 <YAxis axisLine={false} tickLine={false}
                                     tickFormatter={v => `₹${v.toLocaleString('en-IN')}`}
-                                    tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: "'Geist Variable', monospace" }} />
-                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,.025)' }} />
+                                    tick={{ fill: chartMuted, fontSize: 10, fontFamily: "'Geist Variable', monospace" }} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? 'rgba(255,255,255,.025)' : 'rgba(0,0,0,.04)' }} />
                                 <Bar dataKey="amount" radius={[8, 8, 0, 0]} maxBarSize={72}>
                                     {chartData.map((entry, i) => (
                                         <Cell key={i} fill={entry.fill} fillOpacity={0.85} />
@@ -410,7 +415,7 @@ const FinanceDashboard = () => {
                                         <td style={{ textAlign: 'right' }}>
                                             {inv.status === 'pending'
                                                 ? <button className="btn-mark-paid" onClick={() => handleMarkAsPaid(inv.id)}><BadgeCheck size={13} /> Mark Paid</button>
-                                                : <span style={{ fontSize: 10, color: 'var(--faint)', fontFamily: 'var(--font-mono)' }}>Settled</span>
+                                                : <span className="btn-settled"><CircleCheck size={12} /> Settled</span>
                                             }
                                         </td>
                                     </tr>
@@ -481,7 +486,7 @@ const FinanceDashboard = () => {
                                                 type={type} required={true} placeholder={placeholder}
                                                 value={expenseForm[key]}
                                                 onChange={e => setExpenseForm({ ...expenseForm, [key]: e.target.value })}
-                                                style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: 9, padding: '9px 12px', color: 'var(--text)', fontFamily: 'var(--font-ui)', fontSize: 13, outline: 'none', colorScheme: 'dark' }}
+                                                style={{ background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: 9, padding: '9px 12px', color: 'var(--text)', fontFamily: 'var(--font-ui)', fontSize: 13, outline: 'none', colorScheme: isDark ? 'dark' : 'light' }}
                                                 onFocus={e => e.target.style.borderColor = 'var(--gold)'}
                                                 onBlur={e => e.target.style.borderColor = 'var(--border2)'}
                                                 min={type === 'number' ? 1 : undefined}
@@ -626,7 +631,7 @@ const FinanceDashboard = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 11, padding: '8px 14px' }}>
                             <Calendar size={14} color="var(--gold)" />
                             <input type="month" value={month} onChange={e => setMonth(e.target.value)}
-                                style={{ background: 'transparent', border: 'none', color: 'var(--text)', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, outline: 'none', colorScheme: 'dark', cursor: 'pointer' }} />
+                                style={{ background: 'transparent', border: 'none', color: 'var(--text)', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, outline: 'none', colorScheme: isDark ? 'dark' : 'light', cursor: 'pointer' }} />
                         </div>
                     </div>
 

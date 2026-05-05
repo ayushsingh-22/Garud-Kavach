@@ -167,12 +167,12 @@ export default function HomeScreen() {
             </section>
 
             {/* Scrollable Service Screen */}
-            <div ref={serviceSectionRef} className="bg-slate-50 scroll-mt-20">
+            <div ref={serviceSectionRef} className="bg-slate-50 dark:bg-slate-950 scroll-mt-20">
                 <ServiceScreen />
             </div>
 
             {/* FAQ Section */}
-            <div className="bg-white">
+            <div className="bg-white dark:bg-slate-950">
                 <FaqPage />
             </div>
         </div>

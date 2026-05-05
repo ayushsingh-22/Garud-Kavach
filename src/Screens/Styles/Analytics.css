@@ -117,3 +117,45 @@
     height: 100%;
     border-radius: 5px;
   }
+
+  /* Dark mode overrides */
+  .dark .analytics-container {
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: #e2e8f0;
+  }
+
+  .dark .analytics-container h1 {
+    color: #f1f5f9;
+  }
+
+  .dark .analytics-container h2 {
+    color: #cbd5e1;
+    border-bottom-color: #334155;
+  }
+
+  .dark .analytics-container p {
+    color: #94a3b8;
+  }
+
+  .dark .top-service-list li {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-left-color: #60a5fa;
+  }
+
+  .dark .top-service-list li:hover {
+    background-color: #1e293b;
+  }
+
+  .dark .medal-name {
+    color: #e2e8f0;
+  }
+
+  .dark .medal-revenue {
+    color: #f1f5f9;
+  }
+
+  .dark .medal-progress-container {
+    background-color: #334155;
+  }

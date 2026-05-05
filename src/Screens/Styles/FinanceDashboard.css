@@ -1,34 +1,62 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Finance Dashboard — Styles
-   Matches project palette: Geist font, slate dark theme, orange accent
+   Theme-aware · Geist font · slate palette · orange accent
 ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ─── Design Tokens (scoped to .fd-root) ──────────────────────────────── */
+/* ─── Design Tokens — Light (default) ─────────────────────────────────── */
 .fd-root {
-  --bg:        #020617;           /* slate-950  */
-  --surface:   #0f172a;           /* slate-900  */
-  --surface2:  #1e293b;           /* slate-800  */
-  --border:    #1e293b;           /* slate-800  */
-  --border2:   #334155;           /* slate-700  */
-  --text:      #f8fafc;           /* slate-50   */
-  --muted:     #94a3b8;           /* slate-400  */
-  --faint:     #334155;           /* slate-700  */
-  --gold:      #f97316;           /* orange-500 */
-  --gold-dim:  rgba(249,115,22,.12);
-  --gold-glow: rgba(249,115,22,.25);
-  --green:     #10b981;           /* emerald-500 */
-  --green-dim: rgba(16,185,129,.10);
-  --red:       #ef4444;           /* red-500    */
-  --red-dim:   rgba(239,68,68,.10);
-  --amber:     #f59e0b;           /* amber-500  */
-  --r:         14px;
-  --font-ui:   'Geist Variable', sans-serif;
-  --font-mono: 'Geist Variable', monospace;
+  --bg:           #f8fafc;              /* slate-50  */
+  --surface:      #ffffff;
+  --surface2:     #f1f5f9;           /* slate-100  */
+  --border:       #e2e8f0;           /* slate-200  */
+  --border2:      #cbd5e1;           /* slate-300  */
+  --text:         #0f172a;           /* slate-900  */
+  --muted:        #64748b;           /* slate-500  */
+  --faint:        #cbd5e1;           /* slate-300  */
+  --gold:         #f97316;           /* orange-500 */
+  --gold-dim:     rgba(249,115,22,.08);
+  --gold-glow:    rgba(249,115,22,.18);
+  --green:        #10b981;           /* emerald-500 */
+  --green-dim:    rgba(16,185,129,.06);
+  --red:          #ef4444;           /* red-500    */
+  --red-dim:      rgba(239,68,68,.06);
+  --amber:        #f59e0b;           /* amber-500  */
+  --tooltip-bg:   #ffffff;
+  --tooltip-border: #e2e8f0;
+  --tooltip-text: #64748b;
+  --grid-stroke:  rgba(0,0,0,.06);
+  --shadow-card:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-card-hover: 0 4px 16px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+  --r:            14px;
+  --font-ui:      'Geist Variable', sans-serif;
+  --font-mono:    'Geist Variable', monospace;
+}
+
+/* ─── Design Tokens — Dark ────────────────────────────────────────────── */
+.dark .fd-root {
+  --bg:           #020617;           /* slate-950  */
+  --surface:      #0f172a;           /* slate-900  */
+  --surface2:     #1e293b;           /* slate-800  */
+  --border:       #1e293b;           /* slate-800  */
+  --border2:      #334155;           /* slate-700  */
+  --text:         #f8fafc;           /* slate-50   */
+  --muted:        #94a3b8;           /* slate-400  */
+  --faint:        #334155;           /* slate-700  */
+  --gold-dim:     rgba(249,115,22,.12);
+  --gold-glow:    rgba(249,115,22,.25);
+  --green-dim:    rgba(16,185,129,.10);
+  --red-dim:      rgba(239,68,68,.10);
+  --tooltip-bg:   #0f172a;
+  --tooltip-border: #334155;
+  --tooltip-text: #94a3b8;
+  --grid-stroke:  rgba(255,255,255,.04);
+  --shadow-card:  0 0 0 1px rgba(255,255,255,.03), 0 4px 20px rgba(0,0,0,.3);
+  --shadow-card-hover: 0 0 0 1px var(--border2), 0 8px 30px rgba(0,0,0,.4);
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────── */
 .fd-root * { box-sizing: border-box; }
-.fd-root { font-family: var(--font-ui); color: var(--text); background: var(--bg); }
+.fd-root { font-family: var(--font-ui); color: var(--text); background-color: var(--bg); }
 
 /* ─── Scrollbar ─────────────────────────────────────────────────────────── */
 .fd-root ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -73,10 +101,11 @@
   background: var(--surface);
   overflow: hidden;
   transition: border-color .2s, box-shadow .2s;
+  box-shadow: var(--shadow-card);
 }
 .fd-kpi:hover {
   border-color: var(--border2);
-  box-shadow: 0 0 0 1px var(--border2), 0 8px 30px rgba(0,0,0,.4);
+  box-shadow: var(--shadow-card-hover);
 }
 .fd-kpi .top-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
 
@@ -86,6 +115,11 @@
   border: 1px solid var(--border);
   background: var(--surface);
   overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: border-color .2s, box-shadow .2s;
+}
+.fd-panel:hover {
+  border-color: var(--border2);
 }
 
 /* ─── Table ────────────────────────────────────────────────────────────── */
@@ -148,16 +182,66 @@
   gap: 5px;
   font-size: 11px;
   font-weight: 700;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 8px;
   background: var(--green-dim);
   color: var(--green);
   border: 1px solid rgba(16,185,129,.25);
-  transition: background .14s;
+  transition: background .18s, box-shadow .18s, transform .12s;
   letter-spacing: .01em;
   cursor: pointer;
+  font-family: var(--font-mono);
 }
-.btn-mark-paid:hover { background: rgba(16,185,129,.2); }
+.btn-mark-paid:hover {
+  background: rgba(16,185,129,.22);
+  box-shadow: 0 0 12px rgba(16,185,129,.15);
+  transform: translateY(-1px);
+}
+.btn-mark-paid:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ─── Settled Badge ──────────────────────────────────────────────────────── */
+.btn-settled {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: rgba(59,130,246,.08);
+  color: #3b82f6;
+  border: 1px solid rgba(59,130,246,.2);
+  letter-spacing: .03em;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+.dark .btn-settled {
+  background: rgba(96,165,250,.10);
+  color: #60a5fa;
+  border-color: rgba(96,165,250,.2);
+}
+
+/* ─── N/A Badge (expense row, no action) ─────────────────────────────────── */
+.btn-na {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  letter-spacing: .03em;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
 
 /* ─── Add Button ─────────────────────────────────────────────────────────── */
 .btn-add {

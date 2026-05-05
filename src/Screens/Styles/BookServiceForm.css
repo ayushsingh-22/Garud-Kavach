@@ -210,3 +210,64 @@
   .close-popup:hover {
     background-color: #218838;
   }
+
+  /* Dark mode overrides */
+  .dark .form-container {
+    background: #1e293b;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark h2 {
+    color: #f1f5f9;
+  }
+
+  .dark input[type="text"],
+  .dark input[type="email"],
+  .dark input[type="number"],
+  .dark textarea,
+  .dark select {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+
+  .dark #service {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-color: #334155;
+  }
+
+  .dark .duration-wrapper select,
+  .dark .duration-wrapper input {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-color: #334155;
+  }
+
+  .dark .checkbox-wrapper {
+    color: #cbd5e1;
+  }
+
+  .dark .close-button {
+    color: #94a3b8;
+  }
+
+  .dark .close-button:hover {
+    color: #f1f5f9;
+  }
+
+  .dark .popup {
+    background-color: #064e3b;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark .popup-message {
+    color: #6ee7b7;
+  }

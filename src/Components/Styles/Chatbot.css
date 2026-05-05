@@ -216,3 +216,47 @@
   .quick-replies button:hover {
     background-color: #c5cae9;
   }
+
+  /* Dark mode overrides */
+  .dark .chatbot-window {
+    background-color: #1e293b;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark .chatbot-messages {
+    background-color: #1e293b;
+  }
+
+  .dark .bot-message .message-content {
+    background-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .dark .typing-indicator {
+    background-color: #334155;
+  }
+
+  .dark .chatbot-input {
+    background-color: #0f172a;
+    border-top-color: #334155;
+  }
+
+  .dark .chatbot-input input {
+    background-color: #1e293b;
+    border-color: #475569;
+    color: #e2e8f0;
+  }
+
+  .dark .chatbot-input input::placeholder {
+    color: #94a3b8;
+  }
+
+  .dark .quick-replies button {
+    background-color: #334155;
+    color: #93c5fd;
+    border-color: #475569;
+  }
+
+  .dark .quick-replies button:hover {
+    background-color: #475569;
+  }
