@@ -19,7 +19,9 @@ import { Badge } from "../../Components/ui/badge";
 import { Button } from "../../Components/ui/button";
 import {
   Eye, ChevronLeft, ChevronRight, X, Clock, User, Target,
-  FileText, Shield, Trash2, PenLine, Plus, Activity, Copy, CheckCheck
+  FileText, Shield, Trash2, PenLine, Plus, Activity, Copy, CheckCheck,
+  DollarSign, CreditCard, Banknote, Receipt, CalendarCheck, RefreshCw,
+  UserPlus, FilePlus, ArrowRightLeft
 } from "lucide-react";
 
 const formatDateTime = (isoString) => {
@@ -40,20 +42,50 @@ const isIsoDate = (str) => {
     return isoRegex.test(str);
 };
 
-const getActionVariant = (action) => {
-    if (!action) return 'default';
-    if (action.includes('delete')) return 'destructive';
-    if (action.includes('create') || action.includes('assign')) return 'success';
-    if (action.includes('update')) return 'in_progress';
-    return 'default';
+// Per-action color chip for table rows
+const getActionChip = (action) => {
+    if (!action) return { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', border: 'border-slate-200 dark:border-slate-700' };
+    const a = action.toLowerCase();
+    // Destructive
+    if (a.includes('delete'))                            return { bg: 'bg-red-100 dark:bg-red-500/15',     text: 'text-red-700 dark:text-red-400',       border: 'border-red-200 dark:border-red-700/40' };
+    // Finance — each gets its own hue
+    if (a === 'finalize_payroll')                        return { bg: 'bg-purple-100 dark:bg-purple-500/15', text: 'text-purple-700 dark:text-purple-400',   border: 'border-purple-200 dark:border-purple-700/40' };
+    if (a === 'update_payroll_status')                   return { bg: 'bg-teal-100 dark:bg-teal-500/15',    text: 'text-teal-700 dark:text-teal-400',       border: 'border-teal-200 dark:border-teal-700/40' };
+    if (a === 'create_expense' || a === 'add_expense')   return { bg: 'bg-violet-100 dark:bg-violet-500/15', text: 'text-violet-700 dark:text-violet-400',   border: 'border-violet-200 dark:border-violet-700/40' };
+    if (a.includes('invoice'))                           return { bg: 'bg-orange-100 dark:bg-orange-500/15', text: 'text-orange-700 dark:text-orange-400',   border: 'border-orange-200 dark:border-orange-700/40' };
+    // HR domain
+    if (a.includes('leave'))                             return { bg: 'bg-yellow-100 dark:bg-yellow-500/15', text: 'text-yellow-700 dark:text-yellow-400',   border: 'border-yellow-200 dark:border-yellow-700/40' };
+    if (a.includes('shift'))                             return { bg: 'bg-cyan-100 dark:bg-cyan-500/15',    text: 'text-cyan-700 dark:text-cyan-400',       border: 'border-cyan-200 dark:border-cyan-700/40' };
+    // Status/query updates
+    if (a.includes('status'))                            return { bg: 'bg-sky-100 dark:bg-sky-500/15',      text: 'text-sky-700 dark:text-sky-400',         border: 'border-sky-200 dark:border-sky-700/40' };
+    // Assign
+    if (a.includes('assign'))                            return { bg: 'bg-indigo-100 dark:bg-indigo-500/15', text: 'text-indigo-700 dark:text-indigo-400',   border: 'border-indigo-200 dark:border-indigo-700/40' };
+    // Create user variants
+    if (a.includes('create_user') || a.includes('admin_user')) return { bg: 'bg-teal-100 dark:bg-teal-500/15', text: 'text-teal-700 dark:text-teal-400', border: 'border-teal-200 dark:border-teal-700/40' };
+    // Generic create
+    if (a.includes('create'))                            return { bg: 'bg-emerald-100 dark:bg-emerald-500/15', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-700/40' };
+    // Generic update
+    if (a.includes('update'))                            return { bg: 'bg-amber-100 dark:bg-amber-500/15',  text: 'text-amber-700 dark:text-amber-400',     border: 'border-amber-200 dark:border-amber-700/40' };
+    return { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', border: 'border-slate-200 dark:border-slate-700' };
 };
 
+// Gradient + icon for detail modal header
 const getActionStyle = (action) => {
     if (!action) return { gradient: 'from-slate-600 to-slate-700', icon: Activity, iconBg: 'bg-white/20', label: 'System Event' };
-    if (action.includes('delete')) return { gradient: 'from-red-600 to-rose-700', icon: Trash2, iconBg: 'bg-white/20', label: 'Delete Operation' };
-    if (action.includes('create')) return { gradient: 'from-emerald-600 to-teal-700', icon: Plus, iconBg: 'bg-white/20', label: 'Create Operation' };
-    if (action.includes('assign')) return { gradient: 'from-blue-600 to-indigo-700', icon: Shield, iconBg: 'bg-white/20', label: 'Assignment' };
-    if (action.includes('update')) return { gradient: 'from-amber-600 to-orange-700', icon: PenLine, iconBg: 'bg-white/20', label: 'Update Operation' };
+    const a = action.toLowerCase();
+    if (a.includes('delete'))                            return { gradient: 'from-red-600 to-rose-700',       icon: Trash2,         iconBg: 'bg-white/20', label: 'Delete Operation' };
+    if (a === 'finalize_payroll')                        return { gradient: 'from-purple-600 to-violet-700',  icon: DollarSign,     iconBg: 'bg-white/20', label: 'Payroll Finalized' };
+    if (a === 'update_payroll_status')                   return { gradient: 'from-teal-600 to-emerald-700',   icon: CreditCard,     iconBg: 'bg-white/20', label: 'Payroll Status Update' };
+    if (a === 'create_expense' || a === 'add_expense')   return { gradient: 'from-violet-600 to-purple-700',  icon: Banknote,       iconBg: 'bg-white/20', label: 'Expense Added' };
+    if (a.includes('invoice'))                           return { gradient: 'from-orange-600 to-amber-700',   icon: Receipt,        iconBg: 'bg-white/20', label: 'Invoice Update' };
+    if (a.includes('leave'))                             return { gradient: 'from-yellow-500 to-amber-600',   icon: CalendarCheck,  iconBg: 'bg-white/20', label: 'Leave Request' };
+    if (a.includes('shift'))                             return { gradient: 'from-cyan-600 to-sky-700',       icon: Clock,          iconBg: 'bg-white/20', label: 'Shift Operation' };
+    if (a.includes('status'))                            return { gradient: 'from-sky-600 to-blue-700',       icon: ArrowRightLeft, iconBg: 'bg-white/20', label: 'Status Update' };
+    if (a.includes('assign'))                            return { gradient: 'from-blue-600 to-indigo-700',    icon: Shield,         iconBg: 'bg-white/20', label: 'Assignment' };
+    if (a === 'create_admin_user')                       return { gradient: 'from-teal-600 to-emerald-700',   icon: UserPlus,       iconBg: 'bg-white/20', label: 'Admin Created' };
+    if (a.includes('create_user'))                       return { gradient: 'from-teal-600 to-emerald-700',   icon: UserPlus,       iconBg: 'bg-white/20', label: 'User Created' };
+    if (a.includes('create'))                            return { gradient: 'from-emerald-600 to-teal-700',   icon: Plus,           iconBg: 'bg-white/20', label: 'Create Operation' };
+    if (a.includes('update'))                            return { gradient: 'from-amber-600 to-orange-700',   icon: PenLine,        iconBg: 'bg-white/20', label: 'Update Operation' };
     return { gradient: 'from-slate-600 to-slate-700', icon: Activity, iconBg: 'bg-white/20', label: 'System Event' };
 };
 
@@ -316,9 +348,14 @@ const AuditLog = () => {
                                             {log.user_email || log.user_name || `User ID: ${log.user_id}`}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={getActionVariant(log.action)} className="shadow-none text-[10px] uppercase tracking-wider">
-                                                {(log.action || 'unknown').replace('_', ' ')}
-                                            </Badge>
+                                            {(() => {
+                                                const chip = getActionChip(log.action);
+                                                return (
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border whitespace-nowrap ${chip.bg} ${chip.text} ${chip.border}`}>
+                                                        {(log.action || 'unknown').replace(/_/g, ' ')}
+                                                    </span>
+                                                );
+                                            })()}
                                         </TableCell>
                                         <TableCell className="text-slate-700 dark:text-slate-300 font-mono text-sm">{log.target}</TableCell>
                                         <TableCell className="hidden md:table-cell text-slate-500 dark:text-slate-400">

@@ -67,6 +67,10 @@ const HRDashboard = () => {
         setShiftPage(1);
         setPayrollPage(1);
         setLeavePage(1);
+
+        // Poll every 30 s so shifts, payroll, and leaves stay fresh without a manual refresh.
+        const interval = setInterval(fetchData, 30_000);
+        return () => clearInterval(interval);
     }, [month]);
 
     const handleAddShift = async (e) => {
@@ -128,7 +132,9 @@ const HRDashboard = () => {
         }
     };
 
-    const isPayrollFinalized = payroll.length > 0 && payroll[0].status !== 'pending';
+    // Payroll is finalized when the records are already stored in the DB (have an id).
+    // Calculated-on-the-fly records returned by the API when no DB row exists have id === null.
+    const isPayrollFinalized = payroll.length > 0 && payroll[0].id != null;
 
     const navItems = [
         { id: 'guards', label: 'Guards', icon: Users },
@@ -139,18 +145,51 @@ const HRDashboard = () => {
 
     const renderContent = () => {
         switch (activeSection) {
-            case 'shifts':
+            case 'shifts': {
+                const now = new Date();
+                const scheduledCount  = shifts.filter(s => now < new Date(s.start_time)).length;
+                const activeCount     = shifts.filter(s => now >= new Date(s.start_time) && now <= new Date(s.end_time)).length;
+                const completedCount  = shifts.filter(s => now > new Date(s.end_time)).length;
+
+                const shiftBadgeClass = (shift) => {
+                    const n = new Date(), st = new Date(shift.start_time), en = new Date(shift.end_time);
+                    if (n >= st && n <= en) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700/40';
+                    if (n < st)            return 'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 border-blue-200 dark:border-blue-700/40';
+                    return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700';
+                };
+                const shiftLabel = (shift) => {
+                    const n = new Date(), st = new Date(shift.start_time), en = new Date(shift.end_time);
+                    if (n >= st && n <= en) return 'Active';
+                    if (n < st)            return 'Scheduled';
+                    return 'Completed';
+                };
+
                 return (
-                    <Card className="border-0 shadow-sm bg-white dark:bg-slate-900">
-                        <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6 mb-6">
-                            <div>
-                                <CardTitle className="text-slate-900 dark:text-white">Shifts Overview</CardTitle>
-                                <CardDescription className="text-slate-500 dark:text-slate-400">Manage guard assignments and hours.</CardDescription>
-                            </div>
-                            <div className="flex items-center gap-4">
+                    <div className="space-y-4">
+                        {/* Stat summary */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {[
+                                { label: 'Total Shifts',  value: shifts.length,   textCls: 'text-slate-800 dark:text-slate-200',    bgCls: 'bg-white dark:bg-slate-900' },
+                                { label: 'Scheduled',     value: scheduledCount,  textCls: 'text-blue-700 dark:text-blue-400',     bgCls: 'bg-blue-50 dark:bg-blue-500/10' },
+                                { label: 'Active Now',    value: activeCount,     textCls: 'text-emerald-700 dark:text-emerald-400', bgCls: 'bg-emerald-50 dark:bg-emerald-500/10' },
+                                { label: 'Completed',     value: completedCount,  textCls: 'text-slate-500 dark:text-slate-400',   bgCls: 'bg-slate-50 dark:bg-slate-800/50' },
+                            ].map(({ label, value, textCls, bgCls }) => (
+                                <div key={label} className={`${bgCls} rounded-xl border border-slate-200 dark:border-slate-800 p-4`}>
+                                    <p className={`text-2xl font-bold ${textCls}`}>{value}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide font-medium">{label}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <Card className="border-0 shadow-sm bg-white dark:bg-slate-900">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5 mb-5">
+                                <div>
+                                    <CardTitle className="text-slate-900 dark:text-white">Shifts Overview</CardTitle>
+                                    <CardDescription className="text-slate-500 dark:text-slate-400">Manage guard assignments and track hours.</CardDescription>
+                                </div>
                                 <Dialog open={isShiftOpen} onOpenChange={setIsShiftOpen}>
                                     <DialogTrigger asChild>
-                                        <Button className="bg-orange-600 hover:bg-orange-700 text-white shadow-md shadow-orange-600/20">Add Shift</Button>
+                                        <Button className="bg-orange-600 hover:bg-orange-700 text-white shadow-md shadow-orange-600/20">+ Add Shift</Button>
                                     </DialogTrigger>
                                     <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                                         <DialogHeader>
@@ -184,141 +223,204 @@ const HRDashboard = () => {
                                         </form>
                                     </DialogContent>
                                 </Dialog>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader className="bg-slate-50 dark:bg-slate-950/50">
-                                        <TableRow className="border-slate-100 dark:border-slate-800 hover:bg-transparent">
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Guard Name</TableHead>
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Client/Query</TableHead>
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Start Time</TableHead>
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">End Time</TableHead>
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Hours</TableHead>
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {loading ? (
-                                            <TableRow><TableCell colSpan={6} className="text-center py-8 text-slate-500 dark:text-slate-400">Loading...</TableCell></TableRow>
-                                        ) : shifts.length === 0 ? (
-                                            <TableRow><TableCell colSpan={6} className="text-center py-8 text-slate-500 dark:text-slate-400">No shifts found.</TableCell></TableRow>
-                                        ) : (() => {
-                                            const totalShiftPages = Math.max(1, Math.ceil(shifts.length / ITEMS_PER_PAGE));
-                                            const safeShiftPage = Math.min(shiftPage, totalShiftPages);
-                                            const paginatedShifts = shifts.slice((safeShiftPage - 1) * ITEMS_PER_PAGE, safeShiftPage * ITEMS_PER_PAGE);
-                                            return paginatedShifts.map(shift => (
-                                                <TableRow key={shift.id} className="border-slate-100 dark:border-slate-800">
-                                                    <TableCell className="font-medium text-slate-900 dark:text-white">{shift.guard_name}</TableCell>
-                                                    <TableCell className="text-slate-700 dark:text-slate-300">{shift.client_name}</TableCell>
-                                                    <TableCell className="text-slate-700 dark:text-slate-300">{new Date(shift.start_time).toLocaleString('en-IN')}</TableCell>
-                                                    <TableCell className="text-slate-700 dark:text-slate-300">{new Date(shift.end_time).toLocaleString('en-IN')}</TableCell>
-                                                    <TableCell className="font-medium text-slate-900 dark:text-white">{shift.actual_hours}</TableCell>
-                                                    <TableCell><Badge variant="outline" className="shadow-none border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">{shift.status}</Badge></TableCell>
-                                                </TableRow>
-                                            ));
-                                        })()}
-                                    </TableBody>
-                                </Table>
-                            </div>                            {shifts.length > ITEMS_PER_PAGE && (() => {
-                                const totalShiftPages = Math.max(1, Math.ceil(shifts.length / ITEMS_PER_PAGE));
-                                const safeShiftPage = Math.min(shiftPage, totalShiftPages);
-                                return (
-                                    <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
-                                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                                            Showing {(safeShiftPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safeShiftPage * ITEMS_PER_PAGE, shifts.length)} of {shifts.length} shifts
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="sm" disabled={safeShiftPage <= 1} onClick={() => setShiftPage(p => Math.max(1, p - 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                                                <ChevronLeft className="w-4 h-4 mr-1" /> Prev
-                                            </Button>
-                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Page {safeShiftPage} of {totalShiftPages}</span>
-                                            <Button variant="outline" size="sm" disabled={safeShiftPage >= totalShiftPages} onClick={() => setShiftPage(p => Math.min(totalShiftPages, p + 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                                                Next <ChevronRight className="w-4 h-4 ml-1" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                );
-                            })()}                        </CardContent>
-                    </Card>
-                );
-            case 'payroll':
-                return (
-                    <Card className="border-0 shadow-sm bg-white dark:bg-slate-900">
-                        <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6 mb-6">
-                            <div>
-                                <CardTitle className="text-slate-900 dark:text-white">Payroll Processing</CardTitle>
-                                <CardDescription className="text-slate-500 dark:text-slate-400">Review and finalize monthly payroll.</CardDescription>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                {!isPayrollFinalized && payroll.length > 0 && (
-                                    <Button onClick={handleFinalizePayroll} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20">
-                                        Finalize Month
-                                    </Button>
-                                )}
-                                {isPayrollFinalized && (
-                                    <Badge variant="success" className="px-3 py-1 text-sm shadow-none">Finalized</Badge>
-                                )}
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader className="bg-slate-50 dark:bg-slate-950/50">
-                                        <TableRow className="border-slate-100 dark:border-slate-800 hover:bg-transparent">
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Guard Name</TableHead>
-                                            <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Total Hours</TableHead>
-                                            <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Rate / Hr</TableHead>
-                                            <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Total Pay</TableHead>
-                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {loading ? (
-                                            <TableRow><TableCell colSpan={5} className="text-center py-8 text-slate-500 dark:text-slate-400">Loading...</TableCell></TableRow>
-                                        ) : payroll.length === 0 ? (
-                                            <TableRow><TableCell colSpan={5} className="text-center py-8 text-slate-500 dark:text-slate-400">No payroll records for this month.</TableCell></TableRow>
-                                        ) : (() => {
-                                            const totalPayPages = Math.max(1, Math.ceil(payroll.length / ITEMS_PER_PAGE));
-                                            const safePayPage = Math.min(payrollPage, totalPayPages);
-                                            const paginatedPayroll = payroll.slice((safePayPage - 1) * ITEMS_PER_PAGE, safePayPage * ITEMS_PER_PAGE);
-                                            return paginatedPayroll.map((p, idx) => (
-                                                <TableRow key={p.id || idx} className="border-slate-100 dark:border-slate-800">
-                                                    <TableCell className="font-medium text-slate-900 dark:text-white">{p.guard_name}</TableCell>
-                                                    <TableCell className="text-right font-medium text-slate-900 dark:text-white">{p.total_hours}</TableCell>
-                                                    <TableCell className="text-right text-slate-700 dark:text-slate-300">₹{p.rate_per_hour.toLocaleString('en-IN')}</TableCell>
-                                                    <TableCell className="text-right font-bold text-slate-900 dark:text-white">₹{p.total_pay.toLocaleString('en-IN')}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={p.status === 'paid' ? 'success' : 'pending'} className="shadow-none">{p.status}</Badge>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader className="bg-slate-50 dark:bg-slate-950/50">
+                                            <TableRow className="border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Guard Name</TableHead>
+                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Client / Site</TableHead>
+                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Start</TableHead>
+                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">End</TableHead>
+                                                <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Hours</TableHead>
+                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {loading ? (
+                                                <TableRow><TableCell colSpan={6} className="text-center py-10 text-slate-500 dark:text-slate-400">Loading shifts…</TableCell></TableRow>
+                                            ) : shifts.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center py-12">
+                                                        <p className="text-2xl mb-2">📋</p>
+                                                        <p className="font-semibold text-slate-700 dark:text-slate-300">No shifts found</p>
+                                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Add a shift using the button above.</p>
                                                     </TableCell>
                                                 </TableRow>
-                                            ));
-                                        })()}
-                                    </TableBody>
-                                </Table>
-                            </div>                            {payroll.length > ITEMS_PER_PAGE && (() => {
-                                const totalPayPages = Math.max(1, Math.ceil(payroll.length / ITEMS_PER_PAGE));
-                                const safePayPage = Math.min(payrollPage, totalPayPages);
-                                return (
-                                    <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
-                                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                                            Showing {(safePayPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safePayPage * ITEMS_PER_PAGE, payroll.length)} of {payroll.length} records
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="sm" disabled={safePayPage <= 1} onClick={() => setPayrollPage(p => Math.max(1, p - 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                                                <ChevronLeft className="w-4 h-4 mr-1" /> Prev
-                                            </Button>
-                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Page {safePayPage} of {totalPayPages}</span>
-                                            <Button variant="outline" size="sm" disabled={safePayPage >= totalPayPages} onClick={() => setPayrollPage(p => Math.min(totalPayPages, p + 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                                                Next <ChevronRight className="w-4 h-4 ml-1" />
-                                            </Button>
+                                            ) : (() => {
+                                                const totalShiftPages = Math.max(1, Math.ceil(shifts.length / ITEMS_PER_PAGE));
+                                                const safeShiftPage   = Math.min(shiftPage, totalShiftPages);
+                                                const paginatedShifts = shifts.slice((safeShiftPage - 1) * ITEMS_PER_PAGE, safeShiftPage * ITEMS_PER_PAGE);
+                                                return paginatedShifts.map(shift => (
+                                                    <TableRow key={shift.id} className="border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                                        <TableCell className="font-semibold text-slate-900 dark:text-white">{shift.guard_name}</TableCell>
+                                                        <TableCell className="text-slate-700 dark:text-slate-300">{shift.client_name || '—'}</TableCell>
+                                                        <TableCell className="text-slate-600 dark:text-slate-400 text-sm">{new Date(shift.start_time).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                                                        <TableCell className="text-slate-600 dark:text-slate-400 text-sm">{new Date(shift.end_time).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                                                        <TableCell className="text-right font-semibold text-slate-900 dark:text-white">{shift.actual_hours > 0 ? `${shift.actual_hours}h` : '—'}</TableCell>
+                                                        <TableCell>
+                                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${shiftBadgeClass(shift)}`}>
+                                                                {shiftLabel(shift)}
+                                                            </span>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ));
+                                            })()}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                {shifts.length > ITEMS_PER_PAGE && (() => {
+                                    const totalShiftPages = Math.max(1, Math.ceil(shifts.length / ITEMS_PER_PAGE));
+                                    const safeShiftPage   = Math.min(shiftPage, totalShiftPages);
+                                    return (
+                                        <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                Showing {(safeShiftPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safeShiftPage * ITEMS_PER_PAGE, shifts.length)} of {shifts.length}
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <Button variant="outline" size="sm" disabled={safeShiftPage <= 1} onClick={() => setShiftPage(p => Math.max(1, p - 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                                                    <ChevronLeft className="w-4 h-4 mr-1" /> Prev
+                                                </Button>
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{safeShiftPage} / {totalShiftPages}</span>
+                                                <Button variant="outline" size="sm" disabled={safeShiftPage >= totalShiftPages} onClick={() => setShiftPage(p => Math.min(totalShiftPages, p + 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                                                    Next <ChevronRight className="w-4 h-4 ml-1" />
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })()}                        </CardContent>
-                    </Card>
+                                    );
+                                })()}
+                            </CardContent>
+                        </Card>
+                    </div>
                 );
+            }
+            case 'payroll': {
+                const totalGuards   = payroll.length;
+                const totalHours    = payroll.reduce((s, p) => s + (Number(p.total_hours) || 0), 0);
+                const totalPayout   = payroll.reduce((s, p) => s + (Number(p.total_pay) || 0), 0);
+                const pendingCount  = payroll.filter(p => p.status === 'pending').length;
+
+                return (
+                    <div className="space-y-4">
+                        {/* Stat summary */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {[
+                                { label: 'Guards',       value: totalGuards,                    textCls: 'text-slate-800 dark:text-slate-200',    bgCls: 'bg-white dark:bg-slate-900' },
+                                { label: 'Total Hours',  value: `${totalHours.toFixed(1)} h`,   textCls: 'text-blue-700 dark:text-blue-400',     bgCls: 'bg-blue-50 dark:bg-blue-500/10' },
+                                { label: 'Total Payout', value: `₹${totalPayout.toLocaleString('en-IN')}`, textCls: 'text-orange-700 dark:text-orange-400', bgCls: 'bg-orange-50 dark:bg-orange-500/10' },
+                                { label: 'Pending',      value: pendingCount,                   textCls: pendingCount > 0 ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400', bgCls: pendingCount > 0 ? 'bg-amber-50 dark:bg-amber-500/10' : 'bg-emerald-50 dark:bg-emerald-500/10' },
+                            ].map(({ label, value, textCls, bgCls }) => (
+                                <div key={label} className={`${bgCls} rounded-xl border border-slate-200 dark:border-slate-800 p-4`}>
+                                    <p className={`text-2xl font-bold ${textCls} truncate`}>{value}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide font-medium">{label}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <Card className="border-0 shadow-sm bg-white dark:bg-slate-900">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5 mb-5">
+                                <div>
+                                    <CardTitle className="text-slate-900 dark:text-white">Payroll Processing</CardTitle>
+                                    <CardDescription className="text-slate-500 dark:text-slate-400">Review hours and finalize monthly payroll for Finance.</CardDescription>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    {isPayrollFinalized ? (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700/40">
+                                            ✓ Finalized
+                                        </span>
+                                    ) : payroll.length > 0 ? (
+                                        <Button onClick={handleFinalizePayroll} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20">
+                                            Finalize Month
+                                        </Button>
+                                    ) : null}
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader className="bg-slate-50 dark:bg-slate-950/50">
+                                            <TableRow className="border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Guard Name</TableHead>
+                                                <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Hours</TableHead>
+                                                <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Rate / Hr</TableHead>
+                                                <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Total Pay</TableHead>
+                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {loading ? (
+                                                <TableRow><TableCell colSpan={5} className="text-center py-10 text-slate-500 dark:text-slate-400">Loading payroll…</TableCell></TableRow>
+                                            ) : payroll.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={5} className="text-center py-12">
+                                                        <p className="text-2xl mb-2">💰</p>
+                                                        <p className="font-semibold text-slate-700 dark:text-slate-300">No payroll records</p>
+                                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Payroll is calculated from shift hours for this month.</p>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (() => {
+                                                const totalPayPages = Math.max(1, Math.ceil(payroll.length / ITEMS_PER_PAGE));
+                                                const safePayPage   = Math.min(payrollPage, totalPayPages);
+                                                const paginatedPay  = payroll.slice((safePayPage - 1) * ITEMS_PER_PAGE, safePayPage * ITEMS_PER_PAGE);
+                                                return (
+                                                    <>
+                                                        {paginatedPay.map((p, idx) => (
+                                                            <TableRow key={p.id || idx} className="border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                                                <TableCell className="font-semibold text-slate-900 dark:text-white">{p.guard_name}</TableCell>
+                                                                <TableCell className="text-right font-medium text-slate-900 dark:text-white">{Number(p.total_hours).toFixed(1)}</TableCell>
+                                                                <TableCell className="text-right text-slate-600 dark:text-slate-400">₹{Number(p.rate_per_hour).toLocaleString('en-IN')}</TableCell>
+                                                                <TableCell className="text-right font-bold text-slate-900 dark:text-white">₹{Number(p.total_pay).toLocaleString('en-IN')}</TableCell>
+                                                                <TableCell>
+                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                                                                        p.status === 'paid'
+                                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700/40'
+                                                                            : 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 border-amber-200 dark:border-amber-700/40'
+                                                                    }`}>
+                                                                        {p.status === 'paid' ? '✓ Paid' : 'Pending'}
+                                                                    </span>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                        {/* Totals row */}
+                                                        {/* <TableRow className="border-t-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 font-bold">
+                                                            <TableCell className="text-slate-900 dark:text-white">Total ({totalGuards} guards)</TableCell>
+                                                            <TableCell className="text-right text-slate-900 dark:text-white">{totalHours.toFixed(1)}h</TableCell>
+                                                            <TableCell className="text-right text-slate-500 dark:text-slate-400">—</TableCell>
+                                                            <TableCell className="text-right text-orange-700 dark:text-orange-400">₹{totalPayout.toLocaleString('en-IN')}</TableCell>
+                                                            <TableCell />
+                                                        </TableRow> */}
+                                                    </>
+                                                );
+                                            })()}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                {payroll.length > ITEMS_PER_PAGE && (() => {
+                                    const totalPayPages = Math.max(1, Math.ceil(payroll.length / ITEMS_PER_PAGE));
+                                    const safePayPage   = Math.min(payrollPage, totalPayPages);
+                                    return (
+                                        <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                Showing {(safePayPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safePayPage * ITEMS_PER_PAGE, payroll.length)} of {payroll.length}
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <Button variant="outline" size="sm" disabled={safePayPage <= 1} onClick={() => setPayrollPage(p => Math.max(1, p - 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                                                    <ChevronLeft className="w-4 h-4 mr-1" /> Prev
+                                                </Button>
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{safePayPage} / {totalPayPages}</span>
+                                                <Button variant="outline" size="sm" disabled={safePayPage >= totalPayPages} onClick={() => setPayrollPage(p => Math.min(totalPayPages, p + 1))} className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                                                    Next <ChevronRight className="w-4 h-4 ml-1" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                            </CardContent>
+                        </Card>
+                    </div>
+                );
+            }
             case 'leaves':
                 return (
                     <Card className="border-0 shadow-sm bg-white dark:bg-slate-900">

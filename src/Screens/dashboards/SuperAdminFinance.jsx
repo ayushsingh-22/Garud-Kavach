@@ -17,6 +17,36 @@ import '../Styles/FinanceDashboard.css';
 /* ─── Palette for pie chart ─────────────────────────────────────────── */
 const PIE_COLORS = ['#f97316', '#10b981', '#3b82f6', '#a78bfa', '#f59e0b', '#ec4899', '#14b8a6', '#ef4444'];
 
+/* ─── Service (invoice) category colors ─────────────────────────────── */
+const SERVICE_COLORS = {
+    'Bouncer':              { bg: 'rgba(239,68,68,.12)',    color: '#f87171', border: 'rgba(239,68,68,.28)' },
+    'Security Guard':      { bg: 'rgba(59,130,246,.12)',   color: '#60a5fa', border: 'rgba(59,130,246,.28)' },
+    'Event Security':      { bg: 'rgba(245,158,11,.12)',   color: '#fbbf24', border: 'rgba(245,158,11,.28)' },
+    'Corporate Security':  { bg: 'rgba(99,102,241,.12)',   color: '#818cf8', border: 'rgba(99,102,241,.28)' },
+    'Residential Security':{ bg: 'rgba(16,185,129,.12)',   color: '#34d399', border: 'rgba(16,185,129,.28)' },
+    'ATM Security':        { bg: 'rgba(249,115,22,.12)',   color: '#fb923c', border: 'rgba(249,115,22,.28)' },
+    'VIP Protection':      { bg: 'rgba(168,85,247,.12)',   color: '#c084fc', border: 'rgba(168,85,247,.28)' },
+    'Industrial Security': { bg: 'rgba(6,182,212,.12)',    color: '#22d3ee', border: 'rgba(6,182,212,.28)' },
+    'Retail Security':     { bg: 'rgba(236,72,153,.12)',   color: '#f472b6', border: 'rgba(236,72,153,.28)' },
+};
+const DEFAULT_SVC = { bg: 'rgba(100,116,139,.12)', color: '#94a3b8', border: 'rgba(100,116,139,.28)' };
+
+/* ─── Expense category colors ────────────────────────────────────────── */
+const EXPENSE_COLORS = {
+    'Salaries & Wages':       { bg: 'rgba(59,130,246,.12)',   color: '#60a5fa', border: 'rgba(59,130,246,.28)' },
+    'Equipment & Gear':       { bg: 'rgba(6,182,212,.12)',    color: '#22d3ee', border: 'rgba(6,182,212,.28)' },
+    'Vehicle & Transport':    { bg: 'rgba(245,158,11,.12)',   color: '#fbbf24', border: 'rgba(245,158,11,.28)' },
+    'Training & Development': { bg: 'rgba(168,85,247,.12)',   color: '#c084fc', border: 'rgba(168,85,247,.28)' },
+    'Maintenance & Repairs':  { bg: 'rgba(249,115,22,.12)',   color: '#fb923c', border: 'rgba(249,115,22,.28)' },
+    'Office & Admin':         { bg: 'rgba(20,184,166,.12)',   color: '#2dd4bf', border: 'rgba(20,184,166,.28)' },
+    'Utilities':              { bg: 'rgba(234,179,8,.12)',    color: '#facc15', border: 'rgba(234,179,8,.28)' },
+    'Communication':          { bg: 'rgba(14,165,233,.12)',   color: '#38bdf8', border: 'rgba(14,165,233,.28)' },
+    'Insurance':              { bg: 'rgba(99,102,241,.12)',   color: '#818cf8', border: 'rgba(99,102,241,.28)' },
+    'Technology':             { bg: 'rgba(139,92,246,.12)',   color: '#a78bfa', border: 'rgba(139,92,246,.28)' },
+    'Marketing':              { bg: 'rgba(236,72,153,.12)',   color: '#f472b6', border: 'rgba(236,72,153,.28)' },
+    'Other':                  { bg: 'rgba(244,63,94,.12)',    color: '#fb7185', border: 'rgba(244,63,94,.28)' },
+};
+
 /* ─── Custom Tooltips ───────────────────────────────────────────────── */
 const TrendTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
@@ -543,11 +573,26 @@ const SuperAdminFinance = () => {
                                     <td style={{ fontWeight: 600, color: 'var(--text)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {txn.description || 'N/A'}
                                     </td>
-                                    <td>
-                                        <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 6, background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--muted)' }}>
-                                            {txn.category || '—'}
-                                        </span>
-                                    </td>
+                                    <td>{(() => {
+                                        const palette = txn.type === 'invoice'
+                                            ? (SERVICE_COLORS[txn.category] || DEFAULT_SVC)
+                                            : (EXPENSE_COLORS[txn.category?.startsWith('Other') ? 'Other' : txn.category] || DEFAULT_SVC);
+                                        const isOtherSub = txn.type !== 'invoice' && txn.category?.startsWith('Other: ');
+                                        const catDisplay = isOtherSub
+                                            ? <><span>Other</span><span style={{ opacity: .45, margin: '0 4px', fontWeight: 400 }}>·</span><span>{txn.category.slice(7)}</span></>
+                                            : (txn.category || '—');
+                                        return (
+                                            <span style={{
+                                                fontSize: 11, padding: '3px 10px', borderRadius: 6,
+                                                background: palette.bg,
+                                                border: `1px solid ${palette.border}`,
+                                                color: palette.color,
+                                                fontWeight: 600, whiteSpace: 'nowrap'
+                                            }}>
+                                                {catDisplay}
+                                            </span>
+                                        );
+                                    })()}</td>
                                     <td style={{ textAlign: 'right' }}>
                                         <span className="mono" style={{
                                             fontWeight: 700,
