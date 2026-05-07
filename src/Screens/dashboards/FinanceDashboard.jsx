@@ -1070,15 +1070,15 @@ const FinanceDashboard = () => {
                             <IndianRupee size={16} color="#f8fafc" />
                         </div>
                         <div>
-                            <p style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)', letterSpacing: '.01em' }}>Finance Panel</p>
-                            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--gold)', background: 'var(--gold-dim)', padding: '1px 6px', borderRadius: 4 }}>Finance Access</span>
+                            <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', letterSpacing: '.01em' }}>Finance Panel</p>
+                            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--gold)', background: 'var(--gold-dim)', padding: '1px 6px', borderRadius: 4 }}>Finance Access</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Nav */}
                 <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
-                    <p style={{ fontSize: 9, fontFamily: 'var(--font-mono)', letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--faint)', padding: '6px 8px 10px' }}>Navigation</p>
+                    <p style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--faint)', padding: '6px 8px 10px' }}>Navigation</p>
                     {navItems.map(item => (
                         <button key={item.id} onClick={() => setActiveSection(item.id)}
                             className={`fd-nav-btn ${activeSection === item.id ? 'active' : ''}`}>
