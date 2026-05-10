@@ -78,13 +78,13 @@ export default function HomeScreen() {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Hero Section */}
-            <section className="relative min-h-[90vh] flex items-center bg-slate-900 overflow-hidden">
+            <section className="relative min-h-[90vh] flex items-center bg-slate-100 dark:bg-slate-900 overflow-hidden transition-colors duration-300">
                 {/* Background Image Carousel */}
                 {images.map((img, idx) => (
                     <div 
                         key={idx}
                         className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                            idx === currentIndex ? 'opacity-40' : 'opacity-0'
+                            idx === currentIndex ? 'opacity-50 dark:opacity-50' : 'opacity-0'
                         }`}
                     >
                         <img 
@@ -92,25 +92,25 @@ export default function HomeScreen() {
                             alt={`Security background ${idx + 1}`}
                             className="object-cover w-full h-full"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-slate-100/80 via-slate-100/50 to-slate-100/20 dark:from-slate-900/85 dark:via-slate-900/60 dark:to-transparent" />
                     </div>
                 ))}
 
                 <div className="container relative z-10 mx-auto px-6 lg:px-12 py-20 flex flex-col items-start max-w-7xl">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 mb-6 font-medium text-sm">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-6 font-medium text-sm">
                         <Shield className="w-4 h-4" />
                         <span>Garud Kavach</span>
                     </div>
                     
-                    <h1 className="text-5xl lg:text-7xl font-bold text-white max-w-3xl leading-tight mb-6 tracking-tight">
+                    <h1 className="text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white max-w-3xl leading-tight mb-6 tracking-tight">
                         Your Trusted <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-700 dark:from-orange-400 dark:to-orange-600">
                             Security Partner
                         </span>
                     </h1>
                     
                     <div className="min-h-[120px] max-w-2xl mb-10">
-                        <p className="text-lg lg:text-xl text-slate-300 leading-relaxed transition-opacity duration-500">
+                        <p className="text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed transition-opacity duration-500">
                             {messages[currentIndex]}
                         </p>
                     </div>
@@ -125,7 +125,7 @@ export default function HomeScreen() {
                         </button>
                         <a 
                             href="/contact-us"
-                            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg backdrop-blur-sm transition-all duration-300"
+                            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900/10 hover:bg-slate-900/20 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white font-semibold rounded-lg backdrop-blur-sm transition-all duration-300"
                         >
                             Contact Us
                         </a>
@@ -138,7 +138,7 @@ export default function HomeScreen() {
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
                                 className={`h-2 rounded-full transition-all duration-300 ${
-                                    idx === currentIndex ? 'w-8 bg-orange-500' : 'w-2 bg-slate-600 hover:bg-slate-400'
+                                    idx === currentIndex ? 'w-8 bg-orange-500' : 'w-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400'
                                 }`}
                                 aria-label={`Go to slide ${idx + 1}`}
                             />

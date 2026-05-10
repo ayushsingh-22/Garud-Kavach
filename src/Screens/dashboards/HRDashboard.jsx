@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import apiFetch from "../../utils/apiFetch";
 import GuardManagement from './GuardManagement';
+import GuardDirectory from './GuardDirectory';
+import DashboardLayout from './DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../Components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../Components/ui/table";
 import { Badge } from "../../Components/ui/badge";
@@ -9,7 +11,7 @@ import { Button } from "../../Components/ui/button";
 import { Input } from "../../Components/ui/input";
 import { Label } from "../../Components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "../../Components/ui/dialog";
-import { AlertTriangle, Calendar, Users, Clock, Banknote, FileCheck, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Calendar, Users, Clock, Banknote, FileCheck, LayoutDashboard, ChevronLeft, ChevronRight, Contact } from 'lucide-react';
 
 const HRDashboard = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -138,6 +140,7 @@ const HRDashboard = () => {
 
     const navItems = [
         { id: 'guards', label: 'Guards', icon: Users },
+        { id: 'directory', label: 'Guard Directory', icon: Contact },
         { id: 'shifts', label: 'Shifts', icon: Clock },
         { id: 'payroll', label: 'Payroll', icon: Banknote },
         { id: 'leaves', label: 'Leaves', icon: FileCheck },
@@ -495,6 +498,8 @@ const HRDashboard = () => {
                             })()}                        </CardContent>
                     </Card>
                 );
+            case 'directory':
+                return <GuardDirectory />;
             case 'guards':
             default:
                 return (
@@ -517,81 +522,40 @@ const HRDashboard = () => {
     };
 
     return (
-        <div className="flex min-h-[calc(100vh-80px)] bg-slate-50 dark:bg-slate-950">
-            <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col flex-shrink-0">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">HR Panel</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Human Resources Access</p>
+        <DashboardLayout
+            navItems={navItems}
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            title="HR Panel"
+            subtitle="Human Resources Access"
+            pageDescription="Manage guards, shifts, payroll, and leaves."
+            headerExtra={
+                <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-slate-500" />
+                    <Input 
+                        type="month" 
+                        value={month} 
+                        onChange={(e) => setMonth(e.target.value)} 
+                        className="w-auto bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                    />
                 </div>
-                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                    {navItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => setActiveSection(item.id)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                                activeSection === item.id
-                                    ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-500'
-                                    : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50'
-                            }`}
-                        >
-                            <item.icon className={`w-5 h-5 ${activeSection === item.id ? 'text-orange-600 dark:text-orange-500' : 'text-slate-400 dark:text-slate-500'}`} />
-                            {item.label}
-                        </button>
-                    ))}
-                </nav>
-            </aside>
-
-            <div className="md:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 shrink-0 absolute z-10">
-                <select
-                    value={activeSection}
-                    onChange={(e) => setActiveSection(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500"
-                >
-                    {navItems.map(item => (
-                        <option key={item.id} value={item.id}>{item.label}</option>
-                    ))}
-                </select>
+            }
+        >
+            {/* Mobile Month Selector */}
+            <div className="mb-6 md:hidden flex items-center justify-between">
+                 <div className="flex items-center gap-2 w-full">
+                    <Calendar className="w-5 h-5 text-slate-500" />
+                    <Input 
+                        type="month" 
+                        value={month} 
+                        onChange={(e) => setMonth(e.target.value)} 
+                        className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                    />
+                </div>
             </div>
 
-            <main className="flex-1 min-w-0 overflow-y-auto pt-20 md:pt-0">
-                <div className="p-4 md:p-8 max-w-7xl mx-auto">
-                    <div className="mb-8 hidden md:block">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                    {navItems.find(i => i.id === activeSection)?.label}
-                                </h1>
-                                <p className="text-slate-500 dark:text-slate-400 mt-1">Manage guards, shifts, payroll, and leaves.</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Calendar className="w-5 h-5 text-slate-500" />
-                                <Input 
-                                    type="month" 
-                                    value={month} 
-                                    onChange={(e) => setMonth(e.target.value)} 
-                                    className="w-auto bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white dark:[color-scheme:dark]"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Mobile Month Selector */}
-                    <div className="mb-6 md:hidden flex items-center justify-between">
-                         <div className="flex items-center gap-2 w-full">
-                            <Calendar className="w-5 h-5 text-slate-500" />
-                            <Input 
-                                type="month" 
-                                value={month} 
-                                onChange={(e) => setMonth(e.target.value)} 
-                                className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white dark:[color-scheme:dark]"
-                            />
-                        </div>
-                    </div>
-
-                    {renderContent()}
-                </div>
-            </main>
-        </div>
+            {renderContent()}
+        </DashboardLayout>
     );
 };
 

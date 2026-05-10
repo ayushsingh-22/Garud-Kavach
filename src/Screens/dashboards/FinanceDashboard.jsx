@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import apiFetch from "../../utils/apiFetch";
+import DashboardLayout from './DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../Components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../Components/ui/table";
 import { Badge } from "../../Components/ui/badge";
@@ -1059,85 +1060,42 @@ const FinanceDashboard = () => {
        ROOT RENDER
     ════════════════════════════════════════════════════════════════════════ */
     return (
-        <div className="fd-root" style={{ display: 'flex', minHeight: 'calc(100vh - 80px)' }}>
-
-            {/* ── Sidebar ── */}
-            <aside style={{ width: 240, background: 'var(--surface)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-                {/* Logo area */}
-                <div style={{ padding: '24px 20px 18px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#f97316,#ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 14px var(--gold-glow)' }}>
-                            <IndianRupee size={16} color="#f8fafc" />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', letterSpacing: '.01em' }}>Finance Panel</p>
-                            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--gold)', background: 'var(--gold-dim)', padding: '1px 6px', borderRadius: 4 }}>Finance Access</span>
-                        </div>
+        <DashboardLayout
+            navItems={navItems}
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            title="Finance Panel"
+            subtitle="Finance Access"
+            pageDescription="Manage revenue, expenses, and invoices."
+            className="fd-root"
+            headerExtra={
+                <div className="flex items-center gap-3">
+                    {activeSection === 'overview' && (
+                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', padding: '3px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 4, background: report.profit >= 0 ? 'var(--green-dim)' : 'var(--red-dim)', color: report.profit >= 0 ? 'var(--green)' : 'var(--red)', border: `1px solid ${report.profit >= 0 ? 'rgba(0,214,143,.2)' : 'rgba(255,85,85,.2)'}` }}>
+                            {report.profit >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                            {report.profit >= 0 ? 'Profitable' : 'Loss'}
+                        </span>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 11, padding: '8px 14px' }}>
+                        <Calendar size={14} color="var(--gold)" />
+                        <input type="month" value={month} onChange={e => setMonth(e.target.value)}
+                            style={{ background: 'transparent', border: 'none', color: 'var(--text)', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, outline: 'none', colorScheme: isDark ? 'dark' : 'light', cursor: 'pointer' }} />
                     </div>
                 </div>
-
-                {/* Nav */}
-                <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
-                    <p style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--faint)', padding: '6px 8px 10px' }}>Navigation</p>
-                    {navItems.map(item => (
-                        <button key={item.id} onClick={() => setActiveSection(item.id)}
-                            className={`fd-nav-btn ${activeSection === item.id ? 'active' : ''}`}>
-                            <item.icon size={16} />
-                            <span style={{ flex: 1 }}>{item.label}</span>
-                            {item.count > 0 && (
-                                <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-mono)', minWidth: 20, textAlign: 'center', padding: '1px 6px', borderRadius: 99, background: activeSection === item.id ? 'var(--gold)' : 'var(--surface2)', color: activeSection === item.id ? '#07070d' : 'var(--muted)', border: activeSection === item.id ? 'none' : '1px solid var(--border)' }}>
-                                    {item.count}
-                                </span>
-                            )}
-                        </button>
-                    ))}
-                </nav>
-
-                {/* Sidebar footer */}
-                <div style={{ padding: '12px 10px', borderTop: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
-                        <ShieldCheck size={14} color="var(--green)" />
-                        <div>
-                            <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '.04em' }}>Secure Access</p>
-                            <p style={{ fontSize: 9, color: 'var(--faint)', marginTop: 1 }}>Data encrypted</p>
-                        </div>
+            }
+            sidebarFooter={
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                    <div>
+                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">Secure Access</p>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">Data encrypted</p>
                     </div>
                 </div>
-            </aside>
-
-            {/* ── Main ── */}
-            <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', paddingTop: 0 }}>
-                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 28px' }}>
-
-                    {/* Header */}
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
-                        <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                                <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--text)', letterSpacing: '-.01em' }}>
-                                    {navItems.find(i => i.id === activeSection)?.label}
-                                </h1>
-                                {activeSection === 'overview' && (
-                                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', padding: '3px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 4, background: report.profit >= 0 ? 'var(--green-dim)' : 'var(--red-dim)', color: report.profit >= 0 ? 'var(--green)' : 'var(--red)', border: `1px solid ${report.profit >= 0 ? 'rgba(0,214,143,.2)' : 'rgba(255,85,85,.2)'}` }}>
-                                        {report.profit >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-                                        {report.profit >= 0 ? 'Profitable' : 'Loss'}
-                                    </span>
-                                )}
-                            </div>
-                            <p style={{ fontSize: 13, color: 'var(--muted)' }}>Manage revenue, expenses, and invoices.</p>
-                        </div>
-
-                        {/* Month picker */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 11, padding: '8px 14px' }}>
-                            <Calendar size={14} color="var(--gold)" />
-                            <input type="month" value={month} onChange={e => setMonth(e.target.value)}
-                                style={{ background: 'transparent', border: 'none', color: 'var(--text)', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, outline: 'none', colorScheme: isDark ? 'dark' : 'light', cursor: 'pointer' }} />
-                        </div>
-                    </div>
-
-                    {/* Section content */}
-                    {(sectionMap[activeSection] || sectionMap.overview)()}
-                </div>
-            </main>
+            }
+        >
+            <div className="fd-root">
+                {(sectionMap[activeSection] || sectionMap.overview)()}
+            </div>
 
             {/* ── Detail Modal ── */}
             <Dialog open={detailModal.open} onOpenChange={open => { if (!open) closeDetail(); }}>
@@ -1167,7 +1125,7 @@ const FinanceDashboard = () => {
                     </div>
                 </DialogContent>
             </Dialog>
-        </div>
+        </DashboardLayout>
     );
 };
 
