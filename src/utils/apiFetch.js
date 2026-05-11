@@ -1,4 +1,5 @@
 import apiConfig from "../Constants/BaseURL";
+import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./tokenStore";
 
 const withBaseURL = (input) => {
   if (typeof input === "string" && !input.startsWith("http://") && !input.startsWith("https://")) {
@@ -24,6 +25,12 @@ const apiFetch = async (input, init = {}) => {
     },
   };
 
+  // Attach Authorization header if we have an access token
+  const token = getAccessToken();
+  if (token) {
+    requestInit.headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(withBaseURL(input), requestInit);
 
   // If the access token has expired, attempt one silent refresh then retry.
@@ -39,7 +46,12 @@ const apiFetch = async (input, init = {}) => {
       // Another request already triggered a refresh — queue this one.
       return new Promise((resolve, reject) => {
         pendingRequests.push({ resolve, reject });
-      }).then(() => fetch(withBaseURL(input), requestInit));
+      }).then(() => {
+        const retryInit = { ...requestInit };
+        const newToken = getAccessToken();
+        if (newToken) retryInit.headers = { ...retryInit.headers, Authorization: `Bearer ${newToken}` };
+        return fetch(withBaseURL(input), retryInit);
+      });
     }
 
     isRefreshing = true;
@@ -47,16 +59,26 @@ const apiFetch = async (input, init = {}) => {
     const refreshResp = await fetch(withBaseURL("/api/auth/refresh"), {
       method: "POST",
       credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: getRefreshToken() }),
     });
 
     isRefreshing = false;
 
     if (refreshResp.ok) {
+      const data = await refreshResp.json();
+      if (data.access_token) {
+        setTokens(data.access_token, getRefreshToken());
+      }
       processQueue(null);
-      return fetch(withBaseURL(input), requestInit);
+      const retryInit = { ...requestInit };
+      const newToken = getAccessToken();
+      if (newToken) retryInit.headers = { ...retryInit.headers, Authorization: `Bearer ${newToken}` };
+      return fetch(withBaseURL(input), retryInit);
     }
 
     // Refresh failed — session is gone. Redirect to login.
+    clearTokens();
     processQueue(new Error("Session expired"));
     if (typeof window !== "undefined") {
       const authPaths = ["/login", "/signup", "/register"];

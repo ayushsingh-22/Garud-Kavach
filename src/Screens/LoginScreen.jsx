@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import apiFetch from "../utils/apiFetch";
+import { setTokens } from "../utils/tokenStore";
 import { useAuth } from "../contexts/AuthContext";
 import { Card, CardContent } from "../Components/ui/card";
 import { Input } from "../Components/ui/input";
@@ -51,6 +52,11 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Save tokens for cross-origin auth (Bearer header)
+        if (data.access_token) {
+          setTokens(data.access_token, data.refresh_token);
+        }
+
         const userResponse = await apiFetch('/api/check-login');
         const userData = await userResponse.json();
         setUser(userData);

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import apiFetch from '../utils/apiFetch';
+import { getRefreshToken, clearTokens } from '../utils/tokenStore';
 
 const AuthContext = createContext(null);
 
@@ -36,8 +37,13 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await apiFetch('/api/logout', { method: 'POST' });
+            await apiFetch('/api/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refresh_token: getRefreshToken() }),
+            });
         } finally {
+            clearTokens();
             setUser(null);
             // Redirect to home or login page after logout
             window.location.href = '/login';
