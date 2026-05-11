@@ -1,8 +1,8 @@
-import baseURL from "../Constants/BaseURL";
+import apiConfig from "../Constants/BaseURL";
 
 const withBaseURL = (input) => {
   if (typeof input === "string" && !input.startsWith("http://") && !input.startsWith("https://")) {
-    return `${baseURL}${input}`;
+    return `${apiConfig.baseURL}${input}`;
   }
   return input;
 };

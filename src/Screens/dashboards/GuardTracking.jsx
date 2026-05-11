@@ -13,7 +13,8 @@ import {
 // Derive WS URL from the current page origin so it works from any device
 // (localhost in dev, LAN IP on mobile, production domain in prod).
 // VITE_API_URL is only set in production builds.
-const API_URL = import.meta.env.VITE_API_URL || '';
+import apiConfig from '../../Constants/BaseURL';
+const API_URL = apiConfig.baseURL;
 // In dev, route WS through the Vite proxy (same host as the page).
 // Works from localhost, any LAN IP, and any port without hardcoding.
 const WS_URL = API_URL
