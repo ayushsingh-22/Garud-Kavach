@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }) => {
         } finally {
             clearTokens();
             setUser(null);
-            // Redirect to home or login page after logout
-            window.location.href = '/login';
+            // Hard redirect forces a full page reload, clearing all cached state
+            window.location.replace('/login');
         }
     };
 
