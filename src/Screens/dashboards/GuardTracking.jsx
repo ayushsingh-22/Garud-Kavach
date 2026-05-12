@@ -754,8 +754,27 @@ export default function GuardTracking() {
     ws.onclose = (e) => {
       if (wsRef.current !== ws) return; // superseded
       setWsState('closed');
-      // 4001 = auth failure, 4003 = forbidden — don't retry, session likely expired
-      if (e.code === 4001 || e.code === 4003) return;
+      // 4001 = auth failure — attempt a silent token refresh, then retry once
+      if (e.code === 4001) {
+        apiFetch('/api/guards/live')  // triggers token refresh via apiFetch 401 handler
+          .then(res => res.ok ? res.json() : [])
+          .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+              setGuards(prev => {
+                if (Object.keys(prev).length > 0) return prev;
+                const m = {};
+                data.forEach(g => { m[g.guardId] = g; });
+                return m;
+              });
+            }
+            // Token refreshed — retry WS connection
+            reconnectTimer.current = setTimeout(connect, 1000);
+          })
+          .catch(() => {}); // refresh failed — session truly expired
+        return;
+      }
+      // 4003 = forbidden role — don't retry
+      if (e.code === 4003) return;
       reconnectTimer.current = setTimeout(connect, 5000);
     };
 
@@ -764,6 +783,23 @@ export default function GuardTracking() {
 
   useEffect(() => {
     connect();
+
+    // REST fallback: load guard data immediately so the list isn't empty
+    // while the WebSocket is still connecting (cold-start, auth refresh, etc.)
+    apiFetch('/api/guards/live')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setGuards(prev => {
+            if (Object.keys(prev).length > 0) return prev; // WS already delivered data
+            const m = {};
+            data.forEach(g => { m[g.guardId] = g; });
+            return m;
+          });
+        }
+      })
+      .catch(() => {});
+
     return () => {
       clearTimeout(reconnectTimer.current);
       disposeWs(wsRef.current);

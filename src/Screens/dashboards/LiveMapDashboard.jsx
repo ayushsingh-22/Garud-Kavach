@@ -154,8 +154,26 @@ export default function LiveMapDashboard() {
     ws.onclose = (e) => {
       if (wsRef.current !== ws) return;
       setWsStatus('disconnected');
-      // 4001 = auth failure, 4003 = forbidden — don't retry, session likely expired
-      if (e.code === 4001 || e.code === 4003) return;
+      // 4001 = auth failure — attempt a silent token refresh, then retry once
+      if (e.code === 4001) {
+        apiFetch('/api/guards/live')
+          .then(res => res.ok ? res.json() : [])
+          .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+              setGuardsMap(prev => {
+                if (Object.keys(prev).length > 0) return prev;
+                const m = {};
+                data.forEach(g => { m[g.guardId] = g; });
+                return m;
+              });
+            }
+            reconnectTimer.current = setTimeout(() => connect(), 1000);
+          })
+          .catch(() => {});
+        return;
+      }
+      // 4003 = forbidden role — don't retry
+      if (e.code === 4003) return;
       reconnectTimer.current = setTimeout(() => connect(), 5000);
     };
 
